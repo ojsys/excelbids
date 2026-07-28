@@ -9,6 +9,7 @@
  */
 
 use App\Core\Auth;
+use App\Core\Branding;
 use App\Core\Database;
 use App\Core\Settings;
 
@@ -46,7 +47,13 @@ $messages = App\Core\Flash::messages();
 <meta property="og:description" content="<?= e((string) $metaDesc) ?>">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="<?= e((string) $siteName) ?>">
+<?php if ($shareImage = Branding::shareImageUrl()): ?>
+<meta property="og:image" content="<?= e($shareImage) ?>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="<?= e($shareImage) ?>">
+<?php endif; ?>
 <link rel="canonical" href="<?= e(url(ltrim($_SERVER['REQUEST_URI'] ?? '/', '/'))) ?>">
+<?= Branding::faviconTags() ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -77,7 +84,7 @@ $messages = App\Core\Flash::messages();
     </div>
   </div>
   <nav>
-    <a href="<?= e(path('/')) ?>" class="logo">Excel<span>Bids</span></a>
+    <a href="<?= e(path('/')) ?>" class="logo"><?= Branding::logoHtml('site') ?></a>
 
     <div class="navlinks" id="primary-nav">
       <?php foreach ($primaryNav as $item): ?>
@@ -113,7 +120,7 @@ $messages = App\Core\Flash::messages();
   <div class="wrap">
     <div class="foot-grid">
       <div>
-        <div class="foot-logo"><?= e((string) $siteName) ?></div>
+        <div class="foot-logo"><?= Branding::logoUrl() !== null ? Branding::logoHtml('site') : e((string) $siteName) ?></div>
         <p><?= e(block('footer_blurb', '')) ?></p>
       </div>
       <div class="foot-col">

@@ -6,7 +6,20 @@
  * @var array<int,array<string,mixed>>|null $diagnostics
  */
 
+use App\Core\Branding;
+use App\Core\Flash;
 use App\Core\Settings;
+use App\Core\Uploader;
+
+$errors = Flash::errors();
+// Only a form that carries files needs the multipart encoding.
+$hasImages = false;
+foreach ($settings as $setting) {
+    if (($setting['type'] ?? '') === 'image') {
+        $hasImages = true;
+        break;
+    }
+}
 ?>
 
 <div class="tabs">
@@ -18,7 +31,8 @@ use App\Core\Settings;
   <a href="<?= e(path('admin/logs/email')) ?>">Email log</a>
 </div>
 
-<form method="post" action="<?= e(path('admin/settings/' . $group)) ?>" class="content-narrow" data-guard-submit>
+<form method="post" action="<?= e(path('admin/settings/' . $group)) ?>" class="content-narrow"
+      <?= $hasImages ? 'enctype="multipart/form-data"' : '' ?> data-guard-submit>
   <?= csrf_field() ?>
 
   <div class="card">
@@ -33,8 +47,32 @@ use App\Core\Settings;
       <?php foreach ($settings as $setting): ?>
         <?php $key = (string) $setting['key']; $type = (string) $setting['type']; $value = (string) $setting['value']; ?>
 
-        <div class="field">
-          <?php if ($type === 'bool'): ?>
+        <div class="field<?= isset($errors[$key]) ? ' has-error' : '' ?>">
+          <?php if ($type === 'image'): ?>
+            <?php $preview = Branding::url($key); ?>
+            <label for="<?= e($key) ?>"><?= e((string) $setting['label']) ?></label>
+
+            <div class="brand-field">
+              <div class="brand-preview<?= $key === 'logo_image_dark' ? ' on-dark' : '' ?>">
+                <?php if ($preview !== null): ?>
+                  <img src="<?= e($preview) ?>" alt="Current <?= e(strtolower((string) $setting['label'])) ?>">
+                <?php else: ?>
+                  <span class="brand-empty">None set</span>
+                <?php endif; ?>
+              </div>
+
+              <div class="brand-controls">
+                <input class="input" type="file" id="<?= e($key) ?>" name="<?= e($key) ?>"
+                       accept=".png,.jpg,.jpeg,.gif,.webp,.svg,.ico,image/*">
+                <?php if ($preview !== null): ?>
+                  <p class="u-small u-faint u-mb0" style="margin-top:7px;">
+                    Choosing a new file replaces the current one.
+                  </p>
+                <?php endif; ?>
+              </div>
+            </div>
+
+          <?php elseif ($type === 'bool'): ?>
             <label class="checkline">
               <input type="checkbox" name="<?= e($key) ?>" value="1" <?= Settings::bool($key) ? 'checked' : '' ?>>
               <span><strong><?= e((string) $setting['label']) ?></strong></span>
@@ -76,8 +114,19 @@ use App\Core\Settings;
           <?php if (!empty($setting['hint'])): ?>
             <span class="help"><?= e((string) $setting['hint']) ?></span>
           <?php endif; ?>
+          <?php if (isset($errors[$key])): ?>
+            <span class="field-error"><?= e($errors[$key]) ?></span>
+          <?php endif; ?>
         </div>
       <?php endforeach; ?>
+
+      <?php if ($group === 'branding'): ?>
+        <p class="u-small u-faint u-mb0">
+          Accepted: <?= e(implode(', ', Uploader::allowedImageExtensions())) ?>,
+          up to <?= e(filesize_human(Uploader::maxImageBytes())) ?> each.
+          Leave a field empty to keep the built-in default.
+        </p>
+      <?php endif; ?>
     </div>
 
     <div class="card-foot">
@@ -85,6 +134,60 @@ use App\Core\Settings;
     </div>
   </div>
 </form>
+
+<?php if ($group === 'branding'): ?>
+  <?php
+    // Removal posts to its own endpoint, so it cannot sit inside the form above.
+    $uploaded = array_filter($settings, static fn ($s) => ($s['type'] ?? '') === 'image' && (string) $s['value'] !== '');
+  ?>
+  <?php if ($uploaded): ?>
+    <section class="card content-narrow">
+      <div class="card-head">
+        <div><h2>Remove an image</h2><div class="sub">Reverts to the built-in default</div></div>
+      </div>
+      <div class="card-body">
+        <?php foreach ($uploaded as $setting): ?>
+          <div class="u-between" style="padding:9px 0;border-bottom:1px solid var(--line-soft);">
+            <span class="u-small" style="font-weight:600;"><?= e((string) $setting['label']) ?></span>
+            <form method="post" action="<?= e(path('admin/settings/branding/' . $setting['key'] . '/remove')) ?>"
+                  data-confirm="Remove the <?= e(strtolower((string) $setting['label'])) ?>?">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+            </form>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </section>
+  <?php endif; ?>
+
+  <section class="card content-narrow">
+    <div class="card-head">
+      <div><h2>Where each image appears</h2></div>
+    </div>
+    <div class="table-wrap">
+      <table class="data">
+        <tbody>
+          <tr>
+            <td style="width:210px;"><strong class="u-small">Logo</strong></td>
+            <td class="u-small u-muted">The website header, the sign-in screens, and the header of every email the system sends.</td>
+          </tr>
+          <tr>
+            <td><strong class="u-small">Logo for dark backgrounds</strong></td>
+            <td class="u-small u-muted">The admin panel and client portal sidebars, which are dark navy. If you leave this empty, those sidebars fall back to the typographic wordmark.</td>
+          </tr>
+          <tr>
+            <td><strong class="u-small">Favicon</strong></td>
+            <td class="u-small u-muted">The browser tab icon on every page, and the home-screen icon when someone saves the site on a phone.</td>
+          </tr>
+          <tr>
+            <td><strong class="u-small">Social sharing image</strong></td>
+            <td class="u-small u-muted">The preview card shown when a link to your site is posted on LinkedIn, X, WhatsApp or Slack.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<?php endif; ?>
 
 <?php if ($group === 'mail'): ?>
   <section class="card content-narrow">

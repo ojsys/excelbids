@@ -6,6 +6,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Activity;
 use App\Core\Auth;
+use App\Core\Branding;
 use App\Core\Config;
 use App\Core\Controller;
 use App\Core\Database;
@@ -14,6 +15,7 @@ use App\Core\Mailer;
 use App\Core\Request;
 use App\Core\Settings;
 use App\Core\Uploader;
+use RuntimeException;
 
 /**
  * System settings, grouped into tabs, plus the email log for diagnosing
@@ -24,10 +26,11 @@ final class SettingsController extends Controller
     protected string $layout = 'admin/partials/layout';
 
     private const GROUPS = [
-        'general' => ['label' => 'General',      'intro' => 'Site name, public contact details and how references are numbered.'],
-        'mail'    => ['label' => 'Email',        'intro' => 'How the system sends notifications, invitations and password resets.'],
-        'portal'  => ['label' => 'Client portal','intro' => 'Whether clients can sign in, upload files and message the team.'],
-        'seo'     => ['label' => 'SEO',          'intro' => 'Default meta tags and analytics.'],
+        'general'  => ['label' => 'General',       'intro' => 'Site name, public contact details and how references are numbered.'],
+        'branding' => ['label' => 'Logo & favicon','intro' => 'The logo, browser-tab icon and social sharing image used across the website, admin panel, client portal and emails.'],
+        'mail'     => ['label' => 'Email',         'intro' => 'How the system sends notifications, invitations and password resets.'],
+        'portal'   => ['label' => 'Client portal', 'intro' => 'Whether clients can sign in, upload files and message the team.'],
+        'seo'      => ['label' => 'SEO',           'intro' => 'Default meta tags and analytics.'],
     ];
 
     public function index(Request $request): void
@@ -40,6 +43,11 @@ final class SettingsController extends Controller
         $group = (string) $params['group'];
         if (!isset(self::GROUPS[$group])) {
             $this->notFound('That settings group does not exist.');
+        }
+
+        // Self-heal an installation that predates the branding settings.
+        if ($group === 'branding') {
+            Branding::ensureSettings();
         }
 
         if ($request->isPost()) {
@@ -61,11 +69,22 @@ final class SettingsController extends Controller
 
     private function save(Request $request, string $group): void
     {
+        $uploadErrors = [];
+
         foreach (Settings::group($group) as $definition) {
             $key = (string) $definition['key'];
+            $type = (string) ($definition['type'] ?? 'text');
 
-            if (($definition['type'] ?? '') === 'bool') {
+            if ($type === 'bool') {
                 Settings::set($key, $request->boolean($key) ? '1' : '0');
+                continue;
+            }
+
+            if ($type === 'image') {
+                $error = $this->saveImage($key);
+                if ($error !== null) {
+                    $uploadErrors[$key] = $error;
+                }
                 continue;
             }
 
@@ -76,11 +95,18 @@ final class SettingsController extends Controller
             $value = (string) $request->raw($key, '');
 
             // A blank password field means "keep what is stored", not "clear it".
-            if (($definition['type'] ?? '') === 'password' && trim($value) === '') {
+            if ($type === 'password' && trim($value) === '') {
                 continue;
             }
 
             Settings::set($key, mb_substr(trim($value), 0, 65535));
+        }
+
+        if ($uploadErrors) {
+            Settings::flush();
+            Flash::setErrors($uploadErrors);
+            Flash::error('Some images could not be uploaded. Everything else on this page was saved.');
+            $this->redirect('admin/settings/' . $group);
         }
 
         Settings::flush();
@@ -88,6 +114,55 @@ final class SettingsController extends Controller
 
         Flash::success(self::GROUPS[$group]['label'] . ' settings saved.');
         $this->redirect('admin/settings/' . $group);
+    }
+
+    /**
+     * Store one uploaded brand image, replacing whatever it had before.
+     *
+     * @return string|null An error message safe to show the user, or null on success.
+     */
+    private function saveImage(string $key): ?string
+    {
+        $file = $_FILES[$key] ?? null;
+
+        // No file chosen is the normal case — the field keeps its current value.
+        if (!is_array($file) || (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+            return null;
+        }
+
+        try {
+            $stored = Uploader::storeImage($file, 'branding');
+        } catch (RuntimeException $e) {
+            return $e->getMessage();
+        }
+
+        // Only remove the old file once the new one is safely on disk.
+        $previous = (string) Settings::get($key, '');
+        if ($previous !== '' && $previous !== $stored['stored_name']) {
+            Uploader::delete($previous);
+        }
+
+        Settings::set($key, $stored['stored_name']);
+        Activity::log('settings.brand_image', 'settings', null, 'Uploaded a new ' . str_replace('_', ' ', $key));
+
+        return null;
+    }
+
+    /** Clear a brand image and delete the file behind it. */
+    public function removeBrandImage(Request $request, array $params): void
+    {
+        $key = (string) ($params['key'] ?? '');
+
+        if (!array_key_exists($key, Branding::FIELDS)) {
+            $this->notFound('That image does not exist.');
+        }
+
+        Branding::remove($key);
+        Settings::flush();
+        Activity::log('settings.brand_image_removed', 'settings', null, 'Removed the ' . str_replace('_', ' ', $key));
+
+        Flash::success('Image removed. The default will be used instead.');
+        $this->redirect('admin/settings/branding');
     }
 
     /** Send a test message to the signed-in user to prove mail works. */

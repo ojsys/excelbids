@@ -10,6 +10,7 @@
  */
 
 use App\Core\Auth;
+use App\Core\Branding;
 use App\Core\Flash;
 use App\Core\Settings;
 use App\Models\Message;
@@ -39,6 +40,7 @@ $messages = Flash::messages();
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= e(($pageTitle ?? 'Client portal') . ' — ' . $siteName) ?></title>
 <meta name="robots" content="noindex, nofollow">
+<?= App\Core\Branding::faviconTags() ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Caveat:wght@700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -51,7 +53,7 @@ $messages = Flash::messages();
 
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-brand">
-      <a href="<?= e(path('portal')) ?>" class="logo">Excel<span>Bids</span></a>
+      <a href="<?= e(path('portal')) ?>" class="logo"><?= Branding::logoHtml('sidebar') ?></a>
       <span class="env">Client Portal</span>
     </div>
 

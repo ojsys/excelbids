@@ -30,8 +30,8 @@ data.
 - **Reports** — win rate, pipeline value, performance by client, sector, portal
   and team member, QA pass rates, and CSV export throughout.
 - **Website content** — the CMS described above, plus page and menu management.
-- **Settings** — email (with a test-send and a delivery log), portal options,
-  SEO, and a system health check.
+- **Settings** — logo and favicon uploads, email (with a test-send and a
+  delivery log), portal options, SEO, and a system health check.
 - **Staff accounts** — four roles from administrator to read-only viewer.
 
 ### Client portal
@@ -114,6 +114,14 @@ those markers are expanded, so no other HTML can get through.
 **Adding a new CMS list** takes one array entry in
 `app/Controllers/Admin/CmsController.php::COLLECTIONS` — the list editor,
 validation and reordering are generated from it.
+
+**Brand assets.** Settings → Logo & favicon takes a logo, an optional light
+version for the dark sidebars, a favicon and a social sharing image. Files are
+stored in `storage/uploads/branding` and streamed through the `/branding` route
+rather than written into the web root — that keeps uploads working in either
+cPanel layout and needs no extra writable folder. They are served immutable with
+an ETag, so a browser fetches each one once. With nothing uploaded, every surface
+falls back to the typographic ExcelBids wordmark.
 
 ---
 

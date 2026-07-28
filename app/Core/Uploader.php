@@ -38,10 +38,177 @@ final class Uploader
         'webp' => ['image/webp'],
     ];
 
+    /** Image types accepted for brand assets (logo, favicon, share image). */
+    private const ALLOWED_IMAGES = [
+        'png'  => ['image/png'],
+        'jpg'  => ['image/jpeg'],
+        'jpeg' => ['image/jpeg'],
+        'gif'  => ['image/gif'],
+        'webp' => ['image/webp'],
+        'svg'  => ['image/svg+xml', 'text/plain', 'text/xml', 'application/xml'],
+        'ico'  => ['image/vnd.microsoft.icon', 'image/x-icon', 'application/octet-stream'],
+    ];
+
     /** @return array<int,string> */
     public static function allowedExtensions(): array
     {
         return array_keys(self::ALLOWED);
+    }
+
+    /** @return array<int,string> */
+    public static function allowedImageExtensions(): array
+    {
+        return array_keys(self::ALLOWED_IMAGES);
+    }
+
+    /** Brand assets are small; a tight cap keeps pages fast. */
+    public static function maxImageBytes(): int
+    {
+        return min(2 * 1024 * 1024, self::maxBytes());
+    }
+
+    /**
+     * Validate and store a brand image.
+     *
+     * Kept separate from store() because the accepted types, size limit and
+     * post-processing all differ — and because SVGs need sanitising.
+     *
+     * @param array<string,mixed> $file A single entry from $_FILES
+     * @return array{original_name:string,stored_name:string,mime_type:string,size_bytes:int}
+     * @throws RuntimeException with a message safe to show the user
+     */
+    public static function storeImage(array $file, string $subdirectory = 'branding'): array
+    {
+        self::assertUploadOk($file);
+
+        $originalName = (string) ($file['name'] ?? 'image');
+        $extension = strtolower((string) pathinfo($originalName, PATHINFO_EXTENSION));
+
+        if (!isset(self::ALLOWED_IMAGES[$extension])) {
+            throw new RuntimeException(
+                'That image type is not accepted. Please use: ' . implode(', ', self::allowedImageExtensions()) . '.'
+            );
+        }
+
+        $size = (int) ($file['size'] ?? 0);
+        if ($size <= 0) {
+            throw new RuntimeException('That file appears to be empty.');
+        }
+        if ($size > self::maxImageBytes()) {
+            throw new RuntimeException('That image is too large. The limit is ' . filesize_human(self::maxImageBytes()) . '.');
+        }
+
+        $tmpPath = (string) $file['tmp_name'];
+        $detected = self::detectMime($tmpPath);
+
+        if (!in_array($detected, self::ALLOWED_IMAGES[$extension], true)) {
+            throw new RuntimeException('That file\'s contents do not match its ' . $extension . ' extension.');
+        }
+
+        // Raster formats must actually decode — a renamed file is not an image.
+        if ($extension !== 'svg' && $extension !== 'ico' && function_exists('getimagesize')) {
+            $dimensions = @getimagesize($tmpPath);
+            if ($dimensions === false) {
+                throw new RuntimeException('That image could not be read. Please re-export it and try again.');
+            }
+        }
+
+        $directory = self::directory($subdirectory);
+        $storedName = bin2hex(random_bytes(12)) . '.' . $extension;
+        $target = $directory . '/' . $storedName;
+
+        if (!move_uploaded_file($tmpPath, $target)) {
+            throw new RuntimeException('The image could not be saved. Check the storage folder is writable.');
+        }
+        @chmod($target, 0644);
+
+        // An SVG is a document, not just pixels: strip anything executable.
+        if ($extension === 'svg') {
+            $clean = self::sanitizeSvg((string) file_get_contents($target));
+            if ($clean === null) {
+                @unlink($target);
+                throw new RuntimeException('That SVG could not be read as valid XML. Please re-export it, or upload a PNG instead.');
+            }
+            file_put_contents($target, $clean);
+            $size = (int) filesize($target);
+        }
+
+        return [
+            'original_name' => self::sanitizeName($originalName),
+            'stored_name'   => $subdirectory . '/' . $storedName,
+            'mime_type'     => $extension === 'svg' ? 'image/svg+xml' : $detected,
+            'size_bytes'    => $size,
+        ];
+    }
+
+    /**
+     * Remove scripting from an SVG.
+     *
+     * Belt and braces alongside the CSP the branding route sends: an SVG served
+     * from our own origin would otherwise be able to run script if opened directly.
+     *
+     * @return string|null Null when the input is not parseable XML.
+     */
+    private static function sanitizeSvg(string $svg): ?string
+    {
+        // Entity expansion is an attack surface of its own; disable the loader.
+        $previous = libxml_use_internal_errors(true);
+        if (function_exists('libxml_disable_entity_loader') && PHP_VERSION_ID < 80000) {
+            @libxml_disable_entity_loader(true);
+        }
+
+        $document = new \DOMDocument();
+        $loaded = $document->loadXML($svg, LIBXML_NONET | LIBXML_NOENT);
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        if (!$loaded || $document->documentElement === null) {
+            return null;
+        }
+
+        $forbiddenTags = ['script', 'foreignObject', 'iframe', 'embed', 'object', 'animate', 'set', 'handler'];
+        $xpath = new \DOMXPath($document);
+
+        foreach ($forbiddenTags as $tag) {
+            $nodes = $xpath->query('//*[local-name()="' . $tag . '"]');
+            if ($nodes !== false) {
+                foreach (iterator_to_array($nodes) as $node) {
+                    $node->parentNode?->removeChild($node);
+                }
+            }
+        }
+
+        // Strip event handlers and any URL that is not a plain fragment or data image.
+        $all = $xpath->query('//*');
+        if ($all !== false) {
+            foreach ($all as $element) {
+                if (!$element instanceof \DOMElement) {
+                    continue;
+                }
+                foreach (iterator_to_array($element->attributes ?? []) as $attribute) {
+                    $name = strtolower($attribute->nodeName);
+                    $value = trim($attribute->nodeValue ?? '');
+
+                    if (str_starts_with($name, 'on')) {
+                        $element->removeAttribute($attribute->nodeName);
+                        continue;
+                    }
+                    if (in_array($name, ['href', 'xlink:href', 'src', 'from', 'to', 'values'], true)) {
+                        $isSafe = str_starts_with($value, '#')
+                            || str_starts_with($value, 'data:image/')
+                            || $value === '';
+                        if (!$isSafe) {
+                            $element->removeAttribute($attribute->nodeName);
+                        }
+                    }
+                    if ($name === 'style' && preg_match('/(javascript:|expression\(|url\s*\()/i', $value)) {
+                        $element->removeAttribute($attribute->nodeName);
+                    }
+                }
+            }
+        }
+
+        return (string) $document->saveXML();
     }
 
     public static function maxBytes(): int

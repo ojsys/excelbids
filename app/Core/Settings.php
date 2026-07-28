@@ -60,6 +60,44 @@ final class Settings
     }
 
     /**
+     * Create a setting row if it is missing, leaving any existing value alone.
+     *
+     * Lets a new setting ship in an update without the site owner having to run
+     * SQL by hand — the screen that needs it calls ensure() before rendering.
+     *
+     * @param array<string,mixed> $definition
+     */
+    public static function ensure(string $key, array $definition): void
+    {
+        $exists = (int) Database::scalar('SELECT COUNT(*) FROM settings WHERE `key` = ?', [$key], 0) > 0;
+
+        if ($exists) {
+            // Keep the label and hint current even though the value is untouched.
+            Database::update('settings', [
+                'group_name' => $definition['group'] ?? 'general',
+                'type'       => $definition['type'] ?? 'text',
+                'label'      => $definition['label'] ?? '',
+                'hint'       => $definition['hint'] ?? '',
+                'sort_order' => (int) ($definition['sort'] ?? 0),
+            ], ['key' => $key]);
+            return;
+        }
+
+        Database::insert('settings', [
+            'key'        => $key,
+            'value'      => $definition['default'] ?? null,
+            'group_name' => $definition['group'] ?? 'general',
+            'type'       => $definition['type'] ?? 'text',
+            'label'      => $definition['label'] ?? '',
+            'hint'       => $definition['hint'] ?? '',
+            'sort_order' => (int) ($definition['sort'] ?? 0),
+            'updated_at' => date('Y-m-d H:i:s'),
+        ]);
+
+        self::$cache = null;
+    }
+
+    /**
      * Definitions for a settings group, in display order.
      *
      * @return array<int,array<string,mixed>>

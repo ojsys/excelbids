@@ -55,8 +55,10 @@ img{max-width:100%; display:block;}
   overflow-y:auto;
 }
 .sidebar-brand{padding:20px 20px 16px; border-bottom:1px solid var(--navy-line);}
-.sidebar-brand .logo{font-family:'Fraunces', serif; font-weight:700; font-size:19px; color:#fff;}
+.sidebar-brand .logo{font-family:'Fraunces', serif; font-weight:700; font-size:19px; color:#fff; display:inline-block;}
 .sidebar-brand .logo span{color:var(--red);}
+.logo-img{max-width:100%; width:auto; display:block;}
+.sidebar-brand .logo-img{max-height:30px;}
 .sidebar-brand .env{
   display:block; margin-top:3px; font-family:'IBM Plex Mono', monospace;
   font-size:9.5px; letter-spacing:0.12em; color:var(--gold); text-transform:uppercase;
@@ -329,6 +331,28 @@ table.data .sub-cell{display:block; font-size:12px; color:var(--ink-soft); margi
 .inline-form{display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap;}
 .inline-form .input, .inline-form .select{width:auto; flex:1 1 180px;}
 
+/* Brand image upload field */
+.brand-field{display:flex; gap:16px; align-items:flex-start; flex-wrap:wrap;}
+.brand-preview{
+  flex:0 0 auto; width:190px; min-height:76px; padding:12px;
+  border:1px dashed var(--line); border-radius:3px; background:var(--paper);
+  display:flex; align-items:center; justify-content:center;
+  /* Chequerboard so transparent edges are obvious. */
+  background-image:
+    linear-gradient(45deg, #EFECE1 25%, transparent 25%, transparent 75%, #EFECE1 75%),
+    linear-gradient(45deg, #EFECE1 25%, transparent 25%, transparent 75%, #EFECE1 75%);
+  background-size:14px 14px; background-position:0 0, 7px 7px;
+}
+.brand-preview.on-dark{background:var(--navy-deep); background-image:none; border-color:var(--navy-line);}
+.brand-preview img{max-width:100%; max-height:64px; width:auto; height:auto;}
+.brand-preview .brand-empty{
+  font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-faint);
+}
+.brand-preview.on-dark .brand-empty{color:#5E6B85;}
+.brand-controls{flex:1 1 240px; min-width:0;}
+.brand-controls .input{padding:7px;}
+
 /* Filter bar */
 .filters{
   background:var(--surface); border:1px solid var(--line); border-radius:var(--radius);
@@ -394,8 +418,9 @@ table.data .sub-cell{display:block; font-size:12px; color:var(--ink-soft); margi
 .auth-page{min-height:100vh; display:flex; align-items:center; justify-content:center; padding:32px 20px; background:var(--paper);}
 .auth-card{width:100%; max-width:420px;}
 .auth-brand{text-align:center; margin-bottom:22px;}
-.auth-brand .logo{font-family:'Fraunces', serif; font-weight:700; font-size:26px;}
+.auth-brand .logo{font-family:'Fraunces', serif; font-weight:700; font-size:26px; display:inline-block;}
 .auth-brand .logo span{color:var(--red);}
+.auth-brand .logo-img{margin:0 auto; max-height:48px;}
 .auth-brand .sub{font-family:'IBM Plex Mono', monospace; font-size:10.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-faint); margin-top:5px;}
 .auth-box{background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:28px; box-shadow:0 24px 60px -32px rgba(20,20,15,0.4);}
 .auth-box h1{font-size:20px; margin-bottom:5px;}

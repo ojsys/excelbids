@@ -48,8 +48,11 @@ header{position:sticky; top:0; z-index:50; background:rgba(251,250,245,0.97); ba
 .header-strip a{color:#EAD9B4;}
 .header-strip a:hover{text-decoration:underline;}
 nav{display:flex; align-items:center; justify-content:space-between; padding:14px 32px; max-width:1120px; margin:0 auto; gap:24px; flex-wrap:wrap;}
-.logo{font-family:'Fraunces', serif; font-weight:700; font-size:21px; color:var(--ink); flex-shrink:0;}
+.logo{font-family:'Fraunces', serif; font-weight:700; font-size:21px; color:var(--ink); flex-shrink:0; display:inline-flex; align-items:center;}
 .logo span{color:var(--red);}
+/* An uploaded logo replaces the wordmark; height is set in Settings. */
+.logo-img{max-width:220px; width:auto; display:block;}
+.foot-logo .logo-img{max-height:34px; max-width:180px;}
 .navlinks{display:flex; gap:26px; font-size:15px; font-weight:600; color:var(--ink);}
 .navlinks a{padding:6px 0; border-bottom:2px solid transparent;}
 .navlinks a:hover{border-bottom-color:var(--red);}

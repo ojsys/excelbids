@@ -6,10 +6,15 @@
  * @var string $content
  */
 
+use App\Core\Branding;
 use App\Core\Settings;
 
 $siteName = Settings::get('site_name', 'ExcelBids');
 $contact = Settings::get('contact_email', '');
+
+// Email clients need absolute URLs, and many block images by default — so the
+// wordmark stays the fallback rather than an empty gap.
+$logo = Branding::absoluteUrl('logo_image');
 ?>
 <!DOCTYPE html>
 <html lang="en-GB">
@@ -26,9 +31,14 @@ $contact = Settings::get('contact_email', '');
 
         <tr>
           <td style="background:#0F1826;padding:20px 28px;">
-            <span style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.01em;">
-              Excel<span style="color:#B23A2E;">Bids</span>
-            </span>
+            <?php if ($logo !== null): ?>
+              <img src="<?= e($logo) ?>" alt="<?= e((string) $siteName) ?>" height="30"
+                   style="height:30px;width:auto;display:block;border:0;">
+            <?php else: ?>
+              <span style="font-family:Georgia,serif;font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.01em;">
+                Excel<span style="color:#B23A2E;">Bids</span>
+              </span>
+            <?php endif; ?>
           </td>
         </tr>
 

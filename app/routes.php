@@ -21,6 +21,9 @@ $router->get('/services', 'Site\HomeController@services');
 $router->get('/sitemap.xml', 'Site\HomeController@sitemap');
 $router->get('/robots.txt', 'Site\HomeController@robots');
 
+// Logo, favicon and share image. Stored outside the web root, so streamed.
+$router->get('/branding/{file}', 'Site\BrandingController@show');
+
 // ---------------------------------------------------------------------------
 // Admin panel
 // ---------------------------------------------------------------------------
@@ -129,8 +132,10 @@ $router->group('/admin', ['csrf'], static function (Router $router): void {
         // Settings and staff accounts
         $router->group('/settings', ['can:settings.manage'], static function (Router $router): void {
             $router->get('/', 'Admin\SettingsController@index');
-            $router->form('/{group}', 'Admin\SettingsController@group');
             $router->post('/mail/test', 'Admin\SettingsController@sendTestEmail');
+            $router->post('/branding/{key}/remove', 'Admin\SettingsController@removeBrandImage');
+            // Registered last so "mail" and "branding" are not read as group names.
+            $router->form('/{group}', 'Admin\SettingsController@group');
         });
 
         $router->group('/users', ['can:users.manage'], static function (Router $router): void {

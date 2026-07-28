@@ -184,6 +184,13 @@ present and valid for your domain.
 
 Work through these in the admin panel:
 
+0. **Settings → Logo & favicon** — upload your logo and browser-tab icon. A wide
+   PNG or SVG works best for the logo; a square PNG of at least 180×180 for the
+   favicon. If your logo is dark, also upload a white version under *Logo for
+   dark backgrounds* so it stays visible on the navy admin and portal sidebars.
+   Add a social sharing image too, so links to your site preview properly on
+   LinkedIn and WhatsApp. Anything you leave empty falls back to the built-in
+   ExcelBids wordmark.
 1. **Website content → Statistics bar** — replace the placeholder figures
    (`92%`, `7`, `£—M`, `4`) with numbers you can evidence, and clear the
    "Placeholder figures" footnote.
@@ -194,6 +201,18 @@ Work through these in the admin panel:
 4. **Website content → Pages** — have the privacy policy and terms of service
    reviewed. The supplied text is a starting point, not legal advice.
 5. **Settings → General** — check the contact email, phone and bid reference prefix.
+
+---
+
+## Updating an already-live installation
+
+Upload the changed files over the top, keeping your `app/config.php` and the
+`storage/` folder. New settings are created automatically the first time you open
+the screen that uses them — there is no SQL to run by hand.
+
+For the logo and favicon specifically: open **Settings → Logo & favicon** once
+after updating and the fields will appear, whether or not your database predates
+them.
 
 ---
 
