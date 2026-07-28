@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExcelBids — Tender, Bid &amp; Grant Writing Specialists</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#FBFAF5;
+    --paper-line:#E7E2D2;
+    --ink:#1B1B17;
+    --ink-soft:#5B584C;
+    --navy:#1B2A47;
+    --navy-deep:#0F1826;
+    --red:#B23A2E;
+    --red-wash:#F4E3DF;
+    --gold:#A9772E;
+    --line:#DFDACB;
+    --rail-w:50px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:'Public Sans', sans-serif; font-size:16px; line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,h4{ font-family:'Fraunces', serif; font-weight:600; margin:0; color:var(--ink); letter-spacing:-0.01em; }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  button{font-family:inherit; cursor:pointer;}
+  .wrap{max-width:1120px; margin:0 auto; padding:0 32px;}
+  .mono{font-family:'IBM Plex Mono', monospace; letter-spacing:0.02em;}
+  .hand{font-family:'Caveat', cursive; font-weight:600;}
+  .eyebrow{font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:0.14em; text-transform:uppercase; color:var(--red); font-weight:500;}
+
+  /* Top bar */
+  header{position:sticky; top:0; z-index:50; background:rgba(251,250,245,0.97); backdrop-filter:blur(6px); border-bottom:1px solid var(--line);}
+  .header-strip{background:var(--navy-deep); color:#C9D0DE; font-size:12.5px;}
+  .header-strip .wrap{display:flex; justify-content:space-between; align-items:center; padding:7px 32px;}
+  .header-strip a{color:#EAD9B4;}
+  nav{display:flex; align-items:center; justify-content:space-between; padding:14px 32px; max-width:1120px; margin:0 auto; gap:24px; flex-wrap:wrap;}
+  .logo{font-family:'Fraunces', serif; font-weight:700; font-size:21px; color:var(--ink); flex-shrink:0;}
+  .logo span{color:var(--red);}
+  .navlinks{display:flex; gap:26px; font-size:15px; font-weight:600; color:var(--ink);}
+  .navlinks a{padding:6px 0; border-bottom:2px solid transparent;}
+  .navlinks a:hover{border-bottom-color:var(--red);}
+  .navcta{display:flex; gap:10px; align-items:center; flex-shrink:0;}
+  .btn{display:inline-flex; align-items:center; gap:8px; padding:13px 24px; border-radius:3px; font-size:15px; font-weight:600; border:1px solid transparent; transition:transform .15s ease, background .15s ease, border-color .15s ease; white-space:nowrap;}
+  .btn:hover{transform:translateY(-1px);}
+  .btn-primary{background:var(--ink); color:#fff;}
+  .btn-primary:hover{background:#000;}
+  .btn-red{background:var(--red); color:#fff;}
+  .btn-red:hover{background:#963025;}
+  .btn-ghost{background:transparent; color:var(--ink); border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--ink);}
+  .btn-ghost-light{background:transparent; color:#fff; border-color:rgba(255,255,255,0.3);}
+  .btn-ghost-light:hover{border-color:#fff;}
+
+  section{padding:60px 0; position:relative; overflow:hidden;}
+  .ghost-num{
+    position:absolute; top:-10px; right:24px; font-family:'Fraunces', serif; font-weight:600;
+    font-size:220px; line-height:1; color:var(--ink); opacity:0.035; pointer-events:none; z-index:0;
+    -webkit-user-select:none; user-select:none;
+  }
+  section > .wrap{position:relative; z-index:1;}
+  .section-head{max-width:600px; margin-bottom:32px;}
+  .section-head .file-num{font-family:'IBM Plex Mono', monospace; font-size:11.5px; color:var(--ink-soft); margin-bottom:4px;}
+  .section-head h2{font-size:30px; margin-top:6px; line-height:1.22;}
+  .section-head p{margin-top:10px; color:var(--ink-soft); font-size:15.5px;}
+  .tint{background:#F4F2EA; border-top:1px solid var(--line); border-bottom:1px solid var(--line);}
+
+  /* HERO */
+  .hero{padding:40px 0 48px;}
+  .hero-grid{display:grid; grid-template-columns:1fr 1fr; gap:48px; align-items:start;}
+  .case-tag{display:inline-block; font-size:11px; color:var(--ink-soft); border:1px solid var(--line); padding:5px 10px; border-radius:2px; margin-bottom:16px;}
+  .hero h1{font-size:44px; line-height:1.14;}
+  .circled{display:inline-block; border:2px solid var(--red); border-radius:52% 48% 44% 56%/62% 42% 58% 38%; padding:1px 12px; transform:rotate(-1.2deg); color:var(--ink);}
+  .hero p.lead{margin-top:16px; font-size:17px; color:var(--ink-soft); max-width:460px;}
+  .hero-actions{display:flex; gap:14px; margin-top:24px; flex-wrap:wrap;}
+  .hero-trust{margin-top:26px; display:flex; gap:30px; flex-wrap:wrap; border-top:1px solid var(--line); padding-top:18px;}
+  .hero-trust div{font-size:12.5px; color:var(--ink-soft);}
+  .hero-trust strong{display:block; font-family:'Fraunces', serif; font-size:22px; color:var(--ink); font-weight:600;}
+
+  /* Document panel */
+  .doc-wrap{position:relative; padding-top:10px;}
+  .doc-page{
+    background:#fff; border:1px solid var(--line); border-radius:2px;
+    padding:30px 30px 40px; position:relative;
+    background-image:repeating-linear-gradient(to bottom, transparent, transparent 26px, var(--paper-line) 27px);
+    box-shadow:0 24px 60px -24px rgba(20,20,15,0.28);
+    transform:rotate(0.6deg);
+  }
+  .doc-topline{font-size:10.5px; color:var(--ink-soft); margin-bottom:16px;}
+  .doc-text{font-size:13.5px; color:var(--ink); margin:0 0 14px; line-height:1.9;}
+  .doc-text .mark{background:var(--red-wash); padding:0 3px; border-bottom:2px solid var(--red);}
+  .doc-note{
+    position:absolute; font-size:19px; color:var(--red); line-height:1.15;
+    max-width:150px; transform:rotate(-2deg);
+  }
+  .doc-note-1{ right:-18px; top:64px; text-align:left; }
+  .doc-note-2{ right:-8px; top:168px; transform:rotate(2deg); max-width:130px; }
+  .stamp{
+    position:absolute; right:26px; bottom:22px;
+    width:104px; height:104px; border-radius:50%;
+    border:3px double var(--red); color:var(--red);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12px; letter-spacing:0.06em;
+    transform:rotate(-11deg); opacity:0.88;
+  }
+  .paperclip{position:absolute; top:-16px; left:26px; width:34px; height:50px; opacity:0.55;}
+  .sticky{
+    position:absolute; left:-22px; bottom:-26px; width:120px;
+    background:#F2E08F; padding:14px 14px 16px; box-shadow:0 10px 20px -8px rgba(0,0,0,0.25);
+    transform:rotate(-4deg); font-family:'IBM Plex Mono', monospace; font-size:9.5px; color:#4A431C; letter-spacing:0.06em;
+  }
+  .sticky span{display:block; margin-top:6px; font-size:11px; font-weight:600; color:#2E2810;}
+
+  /* Proof strip */
+  .proof-strip{background:var(--navy-deep); padding:34px 0 20px;}
+  .proof-inner{display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  .proof-stat{border-left:2px solid var(--gold); padding-left:16px;}
+  .proof-stat strong{display:block; font-family:'Fraunces', serif; font-size:34px; color:#fff; font-weight:600; line-height:1;}
+  .proof-stat span{display:block; margin-top:6px; font-size:12.5px; color:#AEB7C8;}
+  .proof-note{font-size:11px; color:#6E7994; margin:14px 0 0;}
+
+  /* Case study */
+  .case-study{background:#fff; border:1px solid var(--line); border-radius:4px; padding:36px; display:grid; grid-template-columns:1fr 1fr; gap:40px; align-items:center;}
+  .case-study .cs-label{color:var(--red);}
+  .case-study h3{font-size:22px; margin-top:8px; line-height:1.3;}
+  .case-study .cs-before{font-size:13.5px; color:var(--ink-soft); margin-top:12px;}
+  .cs-results{display:flex; flex-direction:column; gap:0;}
+  .cs-result{display:flex; align-items:baseline; gap:14px; padding:14px 0; border-bottom:1px solid var(--line);}
+  .cs-result:last-child{border-bottom:none;}
+  .cs-result strong{font-family:'Fraunces', serif; font-size:26px; color:var(--navy); font-weight:600; white-space:nowrap;}
+  .cs-result span{font-size:13.5px; color:var(--ink-soft);}
+  .strip{padding:22px 0; border-bottom:1px solid var(--line);}
+  .strip-inner{display:flex; align-items:center; gap:30px; flex-wrap:wrap; justify-content:space-between;}
+  .strip-label{font-size:11.5px; color:var(--ink-soft); font-family:'IBM Plex Mono', monospace; letter-spacing:0.08em; text-transform:uppercase; white-space:nowrap;}
+  .stamp-row{display:flex; gap:20px; flex-wrap:wrap;}
+  .mini-stamp{
+    border:1.5px solid var(--ink-soft); color:var(--ink-soft); opacity:0.7;
+    border-radius:50%; width:60px; height:60px; display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-size:9px; text-align:center; line-height:1.2; padding:4px;
+  }
+
+  /* About facts */
+  .fact-row{display:flex; gap:44px; margin-top:22px; flex-wrap:wrap;}
+  .fact-row strong{display:block; font-family:'Fraunces', serif; font-size:19px; color:var(--ink); font-weight:600;}
+  .fact-row span{font-size:12.5px; color:var(--ink-soft);}
+
+  /* Services tile grid */
+  .svc-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:14px;}
+  .svc-tile{
+    background:#fff; border:1px solid var(--line); border-radius:4px; padding:22px 18px;
+    font-size:14.5px; font-weight:600; color:var(--ink);
+    display:flex; flex-direction:column; gap:14px; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+  }
+  .svc-tile:hover{transform:translateY(-3px); box-shadow:0 14px 26px -14px rgba(20,20,15,0.35); border-color:var(--red);}
+  .svc-tile .idx{
+    width:30px; height:30px; border-radius:6px; background:var(--red); color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'IBM Plex Mono', monospace; font-size:12px; font-weight:600;
+  }
+
+  /* Sectors */
+  .sector-row{display:grid; grid-template-columns:0.95fr 1.05fr; gap:40px; align-items:center;}
+  .sector-tags{display:flex; flex-wrap:wrap; gap:9px; margin-top:16px;}
+  .sector-tags span{border:1px solid var(--line); border-radius:16px; padding:6px 14px; font-size:12.5px; font-weight:600; color:var(--ink);}
+  .sector-tags span.core{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .folder{background:var(--navy); color:#fff; border-radius:3px; padding:32px; position:relative;}
+  .folder::before{content:"SECTOR FOCUS"; position:absolute; top:-13px; left:24px; background:var(--red); color:#fff; font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:0.08em; padding:5px 10px; border-radius:2px;}
+  .folder h4{color:#fff; font-size:19px; margin-top:8px;}
+  .folder p{color:#BFC7D6; font-size:14px; margin-top:12px;}
+  .folder .kw{margin-top:18px; display:flex; flex-wrap:wrap; gap:8px;}
+  .folder .kw span{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--gold); border:1px solid rgba(169,119,46,0.45); padding:4px 9px; border-radius:2px;}
+
+  /* Process stepper */
+  .stepper{display:flex; gap:0; flex-wrap:wrap; position:relative; padding-top:8px;}
+  .stepper::before{content:""; position:absolute; top:23px; left:24px; right:24px; height:2px; background:var(--line); z-index:0;}
+  .step{
+    flex:1 1 130px; padding:0 14px; position:relative; z-index:1;
+    font-size:13.5px; font-weight:600; color:var(--ink); display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center;
+  }
+  .step .step-num{
+    width:30px; height:30px; border-radius:50%; background:var(--navy); color:#fff;
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600;
+  }
+
+  /* QA sign-off sheet */
+  .signoff{background:#fff; border:1px solid var(--line); border-radius:3px; padding:28px 32px; max-width:640px;}
+  .so-row{display:flex; gap:14px; padding:12px 0; border-bottom:1px dashed var(--line); align-items:center;}
+  .so-row:last-of-type{border-bottom:none;}
+  .box{width:22px; height:22px; border:2px solid var(--ink); border-radius:2px; flex-shrink:0; position:relative; margin-top:2px;}
+  .box::after{content:"✓"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:'Caveat', cursive; font-weight:700; font-size:20px; color:var(--red);}
+  .so-row h4{font-size:15px; font-weight:600;}
+  .so-row p{font-size:13px; color:var(--ink-soft); margin-top:3px;}
+  .so-sign{margin-top:22px; padding-top:22px; border-top:1px solid var(--line); display:flex; justify-content:space-between; align-items:flex-end;}
+  .so-sign .sig{font-family:'Caveat', cursive; font-size:30px; color:var(--ink);}
+  .so-sign .meta{font-family:'IBM Plex Mono', monospace; font-size:10.5px; color:var(--ink-soft); text-align:right;}
+
+  /* Why us */
+  .why-section{background:var(--navy-deep); background-image:radial-gradient(circle at 88% 0%, rgba(169,119,46,0.16), transparent 45%);}
+  .why-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:20px;}
+  .seal{width:52px; height:52px; border-radius:50%; background:var(--gold); color:var(--navy-deep); display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:18px; box-shadow:0 8px 18px -6px rgba(0,0,0,0.5);}
+  .why-card h4{margin-top:15px; font-size:15px; color:#fff;}
+  .why-card p{margin-top:6px; font-size:13px; color:var(--ink-soft);}
+
+  /* Testimonials as clipped notes */
+  .t-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:22px; padding-top:6px;}
+  .t-card{background:#fff; border:1px solid var(--line); padding:26px 24px 22px; position:relative; box-shadow:0 14px 30px -18px rgba(0,0,0,0.25);}
+  .t-card:nth-child(1){transform:rotate(-1deg);}
+  .t-card:nth-child(2){transform:rotate(0.8deg);}
+  .t-card:nth-child(3){transform:rotate(-0.6deg);}
+  .t-card .qmark{font-family:'Fraunces', serif; font-size:40px; color:var(--red); line-height:0.5; opacity:0.35;}
+  .t-card p.quote{margin-top:8px; font-size:14px; color:var(--ink); line-height:1.65;}
+  .t-card .who{margin-top:16px; padding-top:14px; border-top:1px solid var(--line); font-size:12.5px;}
+  .t-card .who strong{display:block; font-size:13px; color:var(--ink);}
+  .t-card .who span{color:var(--ink-soft);}
+  .t-note{font-size:12px; color:var(--ink-soft); margin-top:-24px; margin-bottom:24px;}
+
+  /* FAQ */
+  .faq-wrap{max-width:740px;}
+  .faq-item{border-bottom:1px solid var(--line);}
+  .faq-q{width:100%; text-align:left; background:none; border:none; padding:16px 0; display:flex; justify-content:space-between; align-items:center; gap:20px; font-family:'Fraunces', serif; font-size:16.5px; font-weight:600; color:var(--ink);}
+  .faq-q .idx{font-family:'IBM Plex Mono', monospace; font-size:11px; color:var(--red); margin-right:14px;}
+  .faq-q .plus{font-family:'IBM Plex Mono', monospace; font-size:18px; color:var(--red); transition:transform .2s ease; flex-shrink:0;}
+  .faq-item.open .plus{transform:rotate(45deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease;}
+  .faq-a p{padding:0 0 22px 30px; margin:0; font-size:14px; color:var(--ink-soft); max-width:600px;}
+
+  /* CTA stamp */
+  .cta-wrap{background:var(--navy-deep); border-radius:4px; padding:44px 48px; position:relative; overflow:hidden;}
+  .cta-inner{display:grid; grid-template-columns:1.2fr 0.8fr; gap:40px; align-items:center; position:relative; z-index:2;}
+  .cta-wrap h2{color:#fff; font-size:30px; line-height:1.25; max-width:440px;}
+  .cta-wrap p.sub{color:#AEB7C8; margin-top:12px; font-size:14.5px; max-width:420px;}
+  .approved{
+    position:absolute; right:60px; top:50%; transform:translateY(-50%) rotate(-9deg);
+    width:150px; height:150px; border-radius:50%; border:3px double var(--red);
+    color:var(--red); display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:13px; letter-spacing:0.04em; opacity:0.9;
+  }
+  .cta-actions{display:flex; flex-direction:column; gap:12px; position:relative;}
+  .cta-actions .btn{justify-content:center;}
+  .point-note{font-family:'Caveat', cursive; color:var(--gold); font-size:20px; text-align:right; margin-bottom:-4px;}
+  .cta-email{font-family:'IBM Plex Mono', monospace; font-size:12.5px; color:var(--gold); margin-top:18px; display:block;}
+
+  footer{background:#F4F2EA; border-top:1px solid var(--line); padding:40px 0 24px;}
+  .foot-grid{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:40px;}
+  .foot-logo{font-family:'Fraunces', serif; font-weight:700; font-size:18px; color:var(--ink);}
+  .foot-grid p{font-size:13px; color:var(--ink-soft); margin-top:12px; max-width:270px;}
+  .foot-col h5{font-family:'IBM Plex Mono', monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:14px;}
+  .foot-col a{display:block; font-size:13.5px; color:var(--ink); margin-bottom:9px;}
+  .foot-col a:hover{color:var(--red);}
+  .foot-bottom{margin-top:44px; padding-top:22px; border-top:1px solid var(--line); display:flex; justify-content:space-between; font-size:12px; color:var(--ink-soft); flex-wrap:wrap; gap:10px;}
+
+  @media (max-width:960px){
+    .navlinks{display:none;}
+    .header-strip .wrap{flex-direction:column; align-items:flex-start; gap:2px; padding:8px 32px;}
+    .hero-grid{grid-template-columns:1fr;}
+    .hero h1{font-size:33px;}
+    .doc-note{display:none;}
+    .sticky{display:none;}
+    .svc-grid{grid-template-columns:repeat(2,1fr);}
+    .proof-inner{grid-template-columns:repeat(2,1fr);}
+    .case-study{grid-template-columns:1fr;}
+    .stepper{flex-direction:column; align-items:flex-start;}
+    .stepper::before{display:none;}
+    .step{flex-direction:row; text-align:left; padding:10px 0; border-bottom:1px solid var(--line); width:100%;}
+    .strip-inner{justify-content:flex-start;}
+    .sector-row{grid-template-columns:1fr;}
+    .why-grid{grid-template-columns:repeat(2,1fr);}
+    .t-grid{grid-template-columns:1fr;}
+    .cta-inner{grid-template-columns:1fr;}
+    .approved{display:none;}
+    .foot-grid{grid-template-columns:1fr 1fr;}
+  }
+  @media (prefers-reduced-motion: reduce){ html{scroll-behavior:auto;} *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-strip">
+    <div class="wrap">
+      <span>Questions before you start? <a href="mailto:excelbidsconsult@gmail.com">excelbidsconsult@gmail.com</a></span>
+      <span>Existing client? <a href="#">Log in here</a></span>
+    </div>
+  </div>
+  <nav>
+    <a href="#" class="logo">Excel<span>Bids</span></a>
+    <div class="navlinks">
+      <a href="#about">About Us</a>
+      <a href="#services">Services</a>
+      <a href="#sectors">Sectors</a>
+      <a href="#process">Our Process</a>
+      <a href="#faq">FAQs</a>
+    </div>
+    <div class="navcta">
+      <a href="#" class="btn btn-ghost">Client Login</a>
+      <a href="#quote" class="btn btn-primary">Start a Consultation</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="case-tag mono">CASE FILE — EB/2026/0417 · OPEN</div>
+        <h1>Bids that read with clarity, confidence &amp; <span class="circled">credibility.</span></h1>
+        <p class="lead">A specialist bid-writing consultancy for UK organisations — compliant, commissioner-ready submissions, done for you.</p>
+        <div class="hero-actions">
+          <a href="#quote" class="btn btn-red">Submit a Consultation Request</a>
+          <a href="#services" class="btn btn-ghost">See Our Services</a>
+        </div>
+        <div class="hero-trust">
+          <div><strong>8</strong>Portals covered</div>
+          <div><strong>NDA</strong>Every engagement</div>
+          <div><strong>4-Stage</strong>QA process</div>
+        </div>
+      </div>
+      <div class="doc-wrap">
+        <div class="doc-page">
+          <svg class="paperclip" viewBox="0 0 24 40" fill="none"><path d="M6 10V28a6 6 0 0012 0V8a4 4 0 00-8 0v18a2 2 0 004 0V10" stroke="#8A8A80" stroke-width="2" stroke-linecap="round"/></svg>
+          <div class="doc-topline mono">TENDER RESPONSE — DRAFT 3 OF 3</div>
+          <p class="doc-text">Our approach is built around <span class="mark">person-centred outcomes</span>, evidenced against CQC's five key questions.</p>
+          <p class="doc-text">Staff are vetted and trained against a competency matrix reviewed quarterly.</p>
+          <div class="doc-note doc-note-1 hand">strong evidence ✓</div>
+          <div class="stamp">PASS<br>COMPLIANT</div>
+        </div>
+        <div class="sticky">DEADLINE<span>Fri 14 Aug — 12:00</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="strip">
+    <div class="wrap strip-inner">
+      <div class="strip-label">Portals we work in daily</div>
+      <div class="stamp-row">
+        <div class="mini-stamp">PRO<br>CONTRACT</div>
+        <div class="mini-stamp">YOR<br>TENDER</div>
+        <div class="mini-stamp">ATAMIS</div>
+        <div class="mini-stamp">JAGGAER</div>
+        <div class="mini-stamp">ORACLE<br>SOURCING</div>
+        <div class="mini-stamp">DELTA<br>eSOURCING</div>
+        <div class="mini-stamp">IN-TEND</div>
+        <div class="mini-stamp">SUPPLIER<br>LIVE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="proof-strip">
+    <div class="wrap proof-inner">
+      <div class="proof-stat"><strong>92%</strong><span>Average QA score before submission</span></div>
+      <div class="proof-stat"><strong>7</strong><span>Procurement frameworks won on</span></div>
+      <div class="proof-stat"><strong>£—M</strong><span>Contract value secured for clients</span></div>
+      <div class="proof-stat"><strong>4</strong><span>Independent QA checks, every bid</span></div>
+    </div>
+    <div class="wrap"><p class="proof-note">Placeholder figures — swap in your verified numbers before launch.</p></div>
+  </div>
+
+  <section id="about">
+    <div class="ghost-num">01</div>
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:20px;">
+        <div class="file-num mono">FILE §01</div>
+        <h2>About ExcelBids</h2>
+      </div>
+      <p style="max-width:640px; font-size:16px; color:var(--ink);">We turn your technical expertise into compliant, commissioner-ready bids — so good organisations win the work they're capable of delivering.</p>
+      <div class="fact-row">
+        <div><strong>UK-Wide</strong><span>Public &amp; private sector</span></div>
+        <div><strong>NDA</strong><span>Confidential by default</span></div>
+        <div><strong>Fixed-Fee</strong><span>Or day-rate, your choice</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="tint">
+    <div class="ghost-num">02</div>
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div class="file-num mono">FILE §02</div>
+        <h2>Our Services</h2>
+      </div>
+      <div class="svc-grid">
+        <div class="svc-tile"><span class="idx">01</span>Tender &amp; Bid Writing</div>
+        <div class="svc-tile"><span class="idx">02</span>Bid Reviews</div>
+        <div class="svc-tile"><span class="idx">03</span>Opportunity Search</div>
+        <div class="svc-tile"><span class="idx">04</span>Portal Registration</div>
+        <div class="svc-tile"><span class="idx">05</span>PQQ / SQ Completion</div>
+        <div class="svc-tile"><span class="idx">06</span>Framework Applications</div>
+        <div class="svc-tile"><span class="idx">07</span>Grant Proposals</div>
+        <div class="svc-tile"><span class="idx">08</span>Bid Management</div>
+        <div class="svc-tile"><span class="idx">09</span>Compliance Reviews</div>
+        <div class="svc-tile"><span class="idx">10</span>Bid Strategy</div>
+        <div class="svc-tile"><span class="idx">11</span>Social Value Responses</div>
+        <div class="svc-tile"><span class="idx">12</span>Policies &amp; Documents</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="sectors">
+    <div class="ghost-num">03</div>
+    <div class="wrap sector-row">
+      <div>
+        <div class="file-num mono">FILE §03</div>
+        <h2 style="font-size:30px; margin-top:6px; line-height:1.25;">Deepest in health &amp; social care.</h2>
+        <p style="margin-top:12px; color:var(--ink-soft); font-size:15.5px;">CQC compliance, safeguarding and person-centred outcomes sit at the heart of every bid we write.</p>
+        <div class="sector-tags">
+          <span class="core">Health &amp; Social Care</span><span class="core">Supported Living</span><span class="core">Home Care</span>
+          <span>NHS</span><span>Cleaning</span><span>Recruitment</span><span>Construction</span><span>FM</span><span>Education</span><span>Transport</span>
+        </div>
+      </div>
+      <div class="folder">
+        <h4>Health &amp; Social Care</h4>
+        <div class="kw"><span>CQC compliance</span><span>Safeguarding</span><span>DPS applications</span><span>LA frameworks</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="process" class="tint">
+    <div class="ghost-num">04</div>
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div class="file-num mono">FILE §04</div>
+        <h2>Our Bid Writing Process</h2>
+      </div>
+      <div class="stepper">
+        <div class="step"><span class="step-num mono">01</span>Consultation</div>
+        <div class="step"><span class="step-num mono">02</span>Opportunity Review</div>
+        <div class="step"><span class="step-num mono">03</span>Strategy Session</div>
+        <div class="step"><span class="step-num mono">04</span>Drafting</div>
+        <div class="step"><span class="step-num mono">05</span>Compliance &amp; QA</div>
+        <div class="step"><span class="step-num mono">06</span>Submission</div>
+        <div class="step"><span class="step-num mono">07</span>Post-Submission</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="qa">
+    <div class="ghost-num">05</div>
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div class="file-num mono">FILE §05</div>
+        <h2>Quality Assurance Sign-Off</h2>
+      </div>
+      <div class="signoff">
+        <div class="so-row"><div class="box"></div><h4>Formatting &amp; Evidence Audit</h4></div>
+        <div class="so-row"><div class="box"></div><h4>Compliance Check</h4></div>
+        <div class="so-row"><div class="box"></div><h4>Independent Read-Through</h4></div>
+        <div class="so-row"><div class="box"></div><h4>Final Proofread</h4></div>
+        <div class="so-sign">
+          <div class="sig">Cleared for submission</div>
+          <div class="meta">QA REVIEWER · EB TEAM<br>DATE: __ / __ / 2026</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="why" class="why-section">
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:28px;">
+        <div class="file-num mono" style="color:var(--gold);">FILE §06</div>
+        <h2 style="color:#fff;">Why Choose Excel Bids</h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-card"><div class="seal">✓</div><h4>Compliance-Focused</h4></div>
+        <div class="why-card"><div class="seal">✎</div><h4>High-Quality Writing</h4></div>
+        <div class="why-card"><div class="seal">◈</div><h4>Strategic Approach</h4></div>
+        <div class="why-card"><div class="seal">£</div><h4>Competitive Pricing</h4></div>
+        <div class="why-card"><div class="seal">⏱</div><h4>Deadline Management</h4></div>
+        <div class="why-card"><div class="seal">◐</div><h4>Client-Focused</h4></div>
+        <div class="why-card"><div class="seal">▤</div><h4>Procurement Knowledge</h4></div>
+        <div class="why-card"><div class="seal">⚑</div><h4>UK Public Sector Expertise</h4></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="proof">
+    <div class="ghost-num">07</div>
+    <div class="wrap">
+      <div class="section-head" style="margin-bottom:24px;">
+        <div class="file-num mono">FILE §07</div>
+        <h2>Proof of Work</h2>
+      </div>
+      <div class="case-study">
+        <div>
+          <div class="eyebrow cs-label">Case Study</div>
+          <h3>A supported living provider that had lost its last three tenders.</h3>
+          <p class="cs-before">Twelve months after their first consultation with ExcelBids:</p>
+        </div>
+        <div class="cs-results">
+          <div class="cs-result"><strong>92/100</strong><span>Evaluation score on a county council framework</span></div>
+          <div class="cs-result"><strong>3-Year</strong><span>Framework agreement secured</span></div>
+          <div class="cs-result"><strong>0</strong><span>Compliance rejections since onboarding</span></div>
+        </div>
+      </div>
+      <p class="proof-note" style="margin-top:10px;">Illustrative case study — replace with a verified client outcome before launch.</p>
+      <div class="t-grid" style="margin-top:36px;">
+        <div class="t-card"><div class="qmark">"</div><p class="quote">Spotted a scoring weakness we'd have missed entirely.</p><div class="who"><strong>Registered Manager</strong><span>Domiciliary Care</span></div></div>
+        <div class="t-card"><div class="qmark">"</div><p class="quote">Full QA process, and we still submitted two days early.</p><div class="who"><strong>Operations Director</strong><span>Facilities Management</span></div></div>
+        <div class="t-card"><div class="qmark">"</div><p class="quote">Read better than anything we'd written in-house.</p><div class="who"><strong>Bid Lead</strong><span>Supported Living</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="faq" class="tint">
+    <div class="ghost-num">08</div>
+    <div class="wrap">
+      <div class="section-head">
+        <div class="file-num mono">FILE §08</div>
+        <h2>Frequently Asked Questions</h2>
+      </div>
+      <div class="faq-wrap">
+        <div class="faq-item"><button class="faq-q"><span><span class="idx">Q1</span>What size organisations do you work with?</span><span class="plus">+</span></button><div class="faq-a"><p>Mostly SMEs, care providers and charities — plus larger organisations needing extra bid-writing capacity.</p></div></div>
+        <div class="faq-item"><button class="faq-q"><span><span class="idx">Q2</span>How much notice do you need?</span><span class="plus">+</span></button><div class="faq-a"><p>More is better, but we regularly support short-turnaround bids. Contact us as soon as you spot an opportunity.</p></div></div>
+        <div class="faq-item"><button class="faq-q"><span><span class="idx">Q3</span>How do you charge?</span><span class="plus">+</span></button><div class="faq-a"><p>Agreed upfront per project — fixed-fee or day-rate, based on scope and deadline.</p></div></div>
+        <div class="faq-item"><button class="faq-q"><span><span class="idx">Q4</span>Do you guarantee we'll win?</span><span class="plus">+</span></button><div class="faq-a"><p>No consultancy can guarantee a win. We guarantee a compliant, well-evidenced submission that gives you the strongest chance.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="quote" style="padding-top:0;">
+    <div class="wrap">
+      <div class="cta-wrap">
+        <div class="cta-inner">
+          <div>
+            <h2>Every tender you don't pursue is handed to a competitor.</h2>
+            <p class="sub">Expert writing, watertight compliance, a strategy built to score.</p>
+            <span class="cta-email mono">excelbidsconsult@gmail.com</span>
+          </div>
+          <div class="cta-actions">
+            <div class="point-note hand">start here →</div>
+            <a href="#" class="btn btn-red">Submit a Consultation Request</a>
+            <a href="#" class="btn btn-ghost-light">Log in to Client Portal</a>
+          </div>
+        </div>
+        <div class="approved">APPROVED<br>FOR<br>SUBMISSION</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><div class="foot-logo">ExcelBids</div><p>Tender, bid &amp; grant writing consultancy for UK organisations.</p></div>
+      <div class="foot-col"><h5>Company</h5><a href="#about">About Us</a><a href="#services">Services</a><a href="#why">Why Us</a><a href="#faq">FAQ</a></div>
+      <div class="foot-col"><h5>Get Started</h5><a href="#quote">Submit a Request</a><a href="#">Client Login</a><a href="#">Book a Call</a></div>
+      <div class="foot-col"><h5>Contact</h5><a href="mailto:excelbidsconsult@gmail.com">excelbidsconsult@gmail.com</a><a href="#">United Kingdom</a></div>
+    </div>
+    <div class="foot-bottom"><span>© 2026 ExcelBids. All rights reserved.</span><span>Privacy Policy · Terms of Service</span></div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-q').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const item = btn.parentElement;
+      const answer = item.querySelector('.faq-a');
+      const isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(el=>{
+        el.classList.remove('open');
+        el.querySelector('.faq-a').style.maxHeight = null;
+      });
+      if(!isOpen){ item.classList.add('open'); answer.style.maxHeight = answer.scrollHeight + 'px'; }
+    });
+  });
+
+</script>
+
+</body>
+</html>

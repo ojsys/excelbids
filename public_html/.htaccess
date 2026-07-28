@@ -1,0 +1,88 @@
+# ExcelBids — Apache configuration for cPanel.
+# This file belongs in your document root alongside index.php.
+
+# ---------------------------------------------------------------------------
+# Pretty URLs
+# ---------------------------------------------------------------------------
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the app lives in a sub-directory, uncomment and set it:
+    # RewriteBase /excelbids/
+
+    # Force HTTPS once your SSL certificate is active (AutoSSL in cPanel).
+    # RewriteCond %{HTTPS} off
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Serve real files and directories directly (assets, the installer).
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Everything else goes to the front controller.
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Security headers
+# ---------------------------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+
+    # Enable after HTTPS is confirmed working on every subdomain.
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    Header unset X-Powered-By
+</IfModule>
+
+# ---------------------------------------------------------------------------
+# Hide sensitive files
+# ---------------------------------------------------------------------------
+<FilesMatch "^(\.env|composer\.(json|lock)|.*\.(md|sql|log|ini|sh|bak|dist|yml|yaml))$">
+    Require all denied
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "^\.">
+    Require all denied
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# No directory listings.
+Options -Indexes
+
+# ---------------------------------------------------------------------------
+# Performance
+# ---------------------------------------------------------------------------
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml
+    AddOutputFilterByType DEFLATE application/javascript application/json application/xml
+    AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 month"
+    ExpiresByType application/javascript  "access plus 1 month"
+    ExpiresByType image/png               "access plus 1 year"
+    ExpiresByType image/jpeg              "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 year"
+    ExpiresByType image/webp              "access plus 1 year"
+    ExpiresByType font/woff2              "access plus 1 year"
+    ExpiresDefault                        "access plus 2 days"
+</IfModule>
+
+# Custom error pages are rendered by PHP; only fall back to Apache's if the
+# front controller itself is unreachable.
+ErrorDocument 403 /index.php
+ErrorDocument 404 /index.php

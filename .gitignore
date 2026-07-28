@@ -1,0 +1,15 @@
+# Holds database credentials — never commit.
+app/config.php
+
+# Runtime data: client documents and error logs.
+storage/uploads/*
+!storage/uploads/.htaccess
+storage/logs/*
+!storage/logs/.gitkeep
+
+# The installer must be deleted after setup, not tracked into a deployment.
+# (Keep it in the repo; delete it on the server.)
+
+.DS_Store
+Thumbs.db
+*.log
