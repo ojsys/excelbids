@@ -94,7 +94,7 @@ INSERT INTO `content_blocks` (`key`, `section`, `label`, `hint`, `type`, `value`
 ('portals_label',        'portals', 'Strip label', '', 'text', 'Portals we work in daily', 1, NOW()),
 
 -- Statistics bar
-('proof_strip_note',     'proof_strip', 'Footnote', 'Clear this once your real figures are in.', 'text', 'Placeholder figures - swap in your verified numbers before launch.', 1, NOW()),
+('proof_strip_note',     'proof_strip', 'Footnote', 'Optional small print under the figures. Leave blank to hide it.', 'text', '', 1, NOW()),
 
 -- About
 ('about_file_num',       'about', 'File number',  '', 'text', 'FILE 01', 1, NOW()),
@@ -252,7 +252,7 @@ INSERT INTO `case_studies` (`eyebrow`, `title`, `intro`, `result_1_value`, `resu
  '92/100', 'Evaluation score on a county council framework',
  '3-Year',  'Framework agreement secured',
  '0',       'Compliance rejections since onboarding',
- 'Illustrative case study - replace with a verified client outcome before launch.',
+ '',
  1, 1);
 
 INSERT INTO `menu_items` (`location`, `label`, `url`, `sort_order`, `is_active`) VALUES
@@ -270,8 +270,8 @@ INSERT INTO `menu_items` (`location`, `label`, `url`, `sort_order`, `is_active`)
 
 INSERT INTO `pages` (`slug`, `title`, `body`, `meta_description`, `is_published`, `show_in_footer`, `sort_order`, `created_at`) VALUES
 ('privacy-policy', 'Privacy Policy',
- '<p>This policy explains what personal data ExcelBids collects, why we collect it, and how we look after it.</p><h3>What we collect</h3><p>When you submit a consultation request we collect your name, organisation, email address, phone number and anything you tell us about the opportunity. If you are a client with a portal account we also hold the documents and correspondence relating to your bids.</p><h3>Why we hold it</h3><p>To respond to your enquiry, to deliver the bid-writing work you have engaged us for, and to keep the records our professional obligations require.</p><h3>How long we keep it</h3><p>Enquiry records are held for 24 months. Client and bid records are held for six years from the end of the engagement.</p><h3>Your rights</h3><p>You can ask us for a copy of the data we hold about you, ask us to correct it, or ask us to delete it. Write to the contact address shown in the footer.</p><p><em>Replace this text with your own reviewed policy before launch.</em></p>',
+ '<p>This policy explains what personal data ExcelBids collects, why we collect it, and how we look after it.</p><h3>What we collect</h3><p>When you submit a consultation request we collect your name, organisation, email address, phone number and anything you tell us about the opportunity. If you are a client with a portal account we also hold the documents and correspondence relating to your bids.</p><h3>Why we hold it</h3><p>To respond to your enquiry, to deliver the bid-writing work you have engaged us for, and to keep the records our professional obligations require.</p><h3>How long we keep it</h3><p>Enquiry records are held for 24 months. Client and bid records are held for six years from the end of the engagement.</p><h3>Your rights</h3><p>You can ask us for a copy of the data we hold about you, ask us to correct it, or ask us to delete it. Write to the contact address shown in the footer.</p>',
  'How ExcelBids collects, uses and protects your personal data.', 1, 1, 1, NOW()),
 ('terms-of-service', 'Terms of Service',
- '<p>These terms apply to bid-writing, review and consultancy services supplied by ExcelBids.</p><h3>Engagement</h3><p>Work begins once a written scope and fee have been agreed. Fees are either fixed per project or charged at an agreed day rate.</p><h3>Confidentiality</h3><p>Every engagement is covered by a non-disclosure agreement. We do not name clients or reproduce their material without written permission.</p><h3>Outcomes</h3><p>We commit to a compliant, well-evidenced submission delivered to the deadline agreed. No consultancy can guarantee a contract award, and we do not.</p><h3>Client responsibilities</h3><p>Accurate source material, evidence and approvals must be supplied in time for us to meet the submission deadline.</p><p><em>Replace this text with your own reviewed terms before launch.</em></p>',
+ '<p>These terms apply to bid-writing, review and consultancy services supplied by ExcelBids.</p><h3>Engagement</h3><p>Work begins once a written scope and fee have been agreed. Fees are either fixed per project or charged at an agreed day rate.</p><h3>Confidentiality</h3><p>Every engagement is covered by a non-disclosure agreement. We do not name clients or reproduce their material without written permission.</p><h3>Outcomes</h3><p>We commit to a compliant, well-evidenced submission delivered to the deadline agreed. No consultancy can guarantee a contract award, and we do not.</p><h3>Client responsibilities</h3><p>Accurate source material, evidence and approvals must be supplied in time for us to meet the submission deadline.</p>',
  'The terms under which ExcelBids supplies bid-writing and consultancy services.', 1, 1, 2, NOW());

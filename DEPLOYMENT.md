@@ -191,11 +191,12 @@ Work through these in the admin panel:
    Add a social sharing image too, so links to your site preview properly on
    LinkedIn and WhatsApp. Anything you leave empty falls back to the built-in
    ExcelBids wordmark.
-1. **Website content → Statistics bar** — replace the placeholder figures
-   (`92%`, `7`, `£—M`, `4`) with numbers you can evidence, and clear the
-   "Placeholder figures" footnote.
-2. **Website content → Case studies** — replace the illustrative case study with
-   a real, permissioned client outcome, and clear its footnote.
+1. **Website content → Statistics bar** — replace the example figures
+   (`92%`, `7`, `£—M`, `4`) with numbers you can evidence. There is no longer a
+   disclaimer under them, and `£—M` renders literally, so this one is visible to
+   every visitor until you change it.
+2. **Website content → Case studies** — replace the example case study with a
+   real, permissioned client outcome. It is presented without any caveat.
 3. **Website content → Testimonials** — only publish quotes you have written
    permission to use.
 4. **Website content → Pages** — have the privacy policy and terms of service

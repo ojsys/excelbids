@@ -149,12 +149,17 @@ falls back to the typographic ExcelBids wordmark.
 
 ## Things to change before launch
 
-The seeded content includes deliberate placeholders, each flagged in the admin panel:
+The seeded content ships without on-page disclaimers, so nothing warns a visitor
+that these are examples. Check each one before the site goes live:
 
-1. **Statistics bar** — `92%`, `7`, `£—M`, `4` are illustrative.
-2. **Case study** — the supported-living example is illustrative.
-3. **Testimonials** — only publish quotes you have permission to use.
-4. **Privacy policy and terms** — a starting point, not legal advice.
+1. **Statistics bar** (Website content → Statistics bar) — `92%`, `7`, `£—M` and
+   `4` are illustrative. `£—M` in particular renders literally and will look
+   broken until you replace it.
+2. **Case study** (Website content → Case studies) — the supported-living example
+   is invented. Replace it with a real, permissioned client outcome.
+3. **Testimonials** — only publish quotes you have written permission to use.
+4. **Privacy policy and terms** (Website content → Pages) — a starting point,
+   not legal advice. Have them reviewed.
 
 ---
 
