@@ -352,6 +352,12 @@ final class Schema
         Database::run("UPDATE menu_items SET url = '/about' WHERE url = '/#about'");
         Database::run("UPDATE menu_items SET url = '/services' WHERE url = '/#services'");
 
+        Database::run("UPDATE content_blocks SET value = 'MORE BIDS. BETTER BIDS.' WHERE `key` = 'hero_case_tag' AND (value = 'CASE FILE - EB/2026/0417 - OPEN' OR value = '')");
+        Database::run("UPDATE content_blocks SET value = 'We help you prepare [c]winning[/c] bids that deliver' WHERE `key` = 'hero_heading' AND (value LIKE 'Bids that read%' OR value = '')");
+        Database::run("UPDATE content_blocks SET value = 'Expert bid writing services that help businesses win more opportunities and grow with confidence.' WHERE `key` = 'hero_lead' AND (value LIKE 'A specialist bid%' OR value = '')");
+        Database::run("UPDATE content_blocks SET value = 'Our Services →' WHERE `key` = 'hero_btn_primary' AND (value = 'Submit a Consultation Request' OR value = '')");
+        Database::run("UPDATE content_blocks SET value = 'How We Work →' WHERE `key` = 'hero_btn_secondary' AND (value = 'See Our Services' OR value = '')");
+
         $contactMenuExists = (int) Database::scalar(
             "SELECT COUNT(*) FROM menu_items WHERE location = 'primary' AND url = '/contact'",
             [],

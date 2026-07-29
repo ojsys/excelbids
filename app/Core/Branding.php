@@ -117,21 +117,28 @@ final class Branding
             return '<img src="' . eb_e($url) . '" alt="' . eb_e($siteName) . '" class="logo-img" style="height:' . $height . 'px">';
         }
 
-        return self::wordmark();
+        return self::wordmark($onDark);
     }
 
     /**
-     * The fallback typographic logo.
-     *
-     * The two-tone treatment is specific to the ExcelBids name, so any other
-     * site name is rendered plainly rather than split at an arbitrary point.
+     * The brand typographic logo and SVG icon mark.
      */
-    public static function wordmark(): string
+    public static function wordmark(bool $onDark = false): string
     {
         $siteName = trim((string) Settings::get('site_name', 'ExcelBids'));
 
         if (strcasecmp($siteName, 'ExcelBids') === 0) {
-            return 'Excel<span>Bids</span>';
+            $navyColor = $onDark ? '#FFFFFF' : '#1E3A5F';
+            $orangeColor = '#F97316';
+            return '<span class="logo-mark" aria-hidden="true" style="display:inline-flex;align-items:center;vertical-align:middle;margin-right:8px;">'
+                 . '<svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">'
+                 . '<path d="M6 34L22 10H14L6 34Z" fill="' . $orangeColor . '"/>'
+                 . '<path d="M12 34L32 4H26L6 34H12Z" fill="' . $navyColor . '"/>'
+                 . '<path d="M24 4H34V14L29 9L24 4Z" fill="' . $navyColor . '"/>'
+                 . '</svg></span>'
+                 . '<span class="logo-text" style="font-family:\'Poppins\', sans-serif;font-weight:700;font-size:20px;letter-spacing:-0.02em;vertical-align:middle;display:inline-flex;align-items:center;">'
+                 . '<span class="logo-excel" style="color:' . $navyColor . ';">EXCEL</span>'
+                 . '<span class="logo-bids" style="color:' . $orangeColor . ';">&nbsp;BIDS</span></span>';
         }
 
         return eb_e($siteName);

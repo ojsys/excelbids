@@ -4,37 +4,39 @@
    ========================================================================= */
 
 :root{
-  --paper:#FBFAF5;
+  --orange:#F97316;
+  --orange-wash:#FFF7ED;
+  --paper:#FFF9F2;
   --surface:#FFFFFF;
-  --ink:#1B1B17;
-  --ink-soft:#5B584C;
-  --ink-faint:#8A8677;
-  --navy:#1B2A47;
-  --navy-deep:#0F1826;
-  --navy-line:#22344F;
-  --red:#B23A2E;
-  --red-wash:#F4E3DF;
-  --gold:#A9772E;
-  --green:#2F6B4F;
-  --green-wash:#E8F1EC;
-  --amber:#9A6B12;
-  --amber-wash:#FBF3DF;
-  --blue:#2B4C7E;
-  --blue-wash:#EAF0F8;
-  --line:#DFDACB;
-  --line-soft:#EDE9DD;
+  --ink:#1F2937;
+  --ink-soft:#4B5563;
+  --ink-faint:#9CA3AF;
+  --navy:#1E3A5F;
+  --navy-deep:#0F172A;
+  --navy-line:#1E293B;
+  --red:#F97316;
+  --red-wash:#FFF7ED;
+  --gold:#FBBF24;
+  --green:#10B981;
+  --green-wash:#ECFDF5;
+  --amber:#F59E0B;
+  --amber-wash:#FEF3C7;
+  --blue:#1E3A5F;
+  --blue-wash:#EFF6FF;
+  --line:#E5E7EB;
+  --line-soft:#F3F4F6;
   --sidebar-w:236px;
-  --radius:4px;
+  --radius:8px;
 }
 
 *{box-sizing:border-box;}
 html,body{height:100%;}
 body{
   margin:0; background:var(--paper); color:var(--ink);
-  font-family:'Public Sans', system-ui, -apple-system, sans-serif;
+  font-family:'Poppins', system-ui, -apple-system, sans-serif;
   font-size:14.5px; line-height:1.6; -webkit-font-smoothing:antialiased;
 }
-h1,h2,h3,h4{font-family:'Fraunces', Georgia, serif; font-weight:600; margin:0; letter-spacing:-0.01em;}
+h1,h2,h3,h4{font-family:'Poppins', sans-serif; font-weight:700; margin:0; letter-spacing:-0.01em;}
 a{color:inherit; text-decoration:none;}
 button{font-family:inherit; cursor:pointer;}
 img{max-width:100%; display:block;}

@@ -29,32 +29,36 @@ use App\Core\Content;
       </div>
     </div>
 
-    <div class="doc-wrap" aria-hidden="true">
-      <div class="doc-page">
-        <svg class="paperclip" viewBox="0 0 24 40" fill="none"><path d="M6 10V28a6 6 0 0012 0V8a4 4 0 00-8 0v18a2 2 0 004 0V10" stroke="#8A8A80" stroke-width="2" stroke-linecap="round"/></svg>
-
-        <?php if ($topline = block('hero_doc_topline')): ?>
-          <div class="doc-topline mono"><?= e($topline) ?></div>
-        <?php endif; ?>
-
-        <?php foreach (['hero_doc_para_1', 'hero_doc_para_2'] as $paraKey): ?>
-          <?php if (block($paraKey) !== ''): ?>
-            <p class="doc-text"><?= Content::rich($paraKey) ?></p>
-          <?php endif; ?>
-        <?php endforeach; ?>
-
-        <?php if ($note = block('hero_doc_note')): ?>
-          <div class="doc-note doc-note-1 hand"><?= e($note) ?> ✓</div>
-        <?php endif; ?>
-
-        <?php if (block('hero_doc_stamp') !== ''): ?>
-          <div class="stamp"><?= Content::lines('hero_doc_stamp') ?></div>
+    <div class="hero-graphic-wrap" aria-hidden="true">
+      <div class="hero-backdrop-shape"></div>
+      <div class="hero-illustration-card">
+        <div class="clipboard-top">
+          <div class="clipboard-clip"></div>
+        </div>
+        <div class="clipboard-body">
+          <div class="winning-bid-badge">WINNING BID</div>
+          <div class="checklist-items">
+            <div class="check-row"><span class="check-icon">✓</span> <span class="check-bar"></span></div>
+            <div class="check-row"><span class="check-icon">✓</span> <span class="check-bar"></span></div>
+            <div class="check-row"><span class="check-icon">✓</span> <span class="check-bar"></span></div>
+            <div class="check-row"><span class="check-icon">✓</span> <span class="check-bar"></span></div>
+          </div>
+          <div class="signature-line hand">ExcelBids</div>
+        </div>
+        <!-- Pie Chart Element -->
+        <div class="hero-pie-chart">
+          <svg width="68" height="68" viewBox="0 0 40 40">
+            <circle r="15.9" cx="20" cy="20" fill="transparent" stroke="#1E3A5F" stroke-width="8" stroke-dasharray="40 60" stroke-dashoffset="0"/>
+            <circle r="15.9" cx="20" cy="20" fill="transparent" stroke="#F97316" stroke-width="8" stroke-dasharray="30 70" stroke-dashoffset="-40"/>
+            <circle r="15.9" cx="20" cy="20" fill="transparent" stroke="#FBBF24" stroke-width="8" stroke-dasharray="18 82" stroke-dashoffset="-70"/>
+            <circle r="15.9" cx="20" cy="20" fill="transparent" stroke="#10B981" stroke-width="8" stroke-dasharray="12 88" stroke-dashoffset="-88"/>
+          </svg>
+        </div>
+        <!-- Sticky Tag -->
+        <?php if (block('hero_sticky_label') !== ''): ?>
+          <div class="sticky"><?= e(block('hero_sticky_label')) ?><span><?= e(block('hero_sticky_value')) ?></span></div>
         <?php endif; ?>
       </div>
-
-      <?php if (block('hero_sticky_label') !== ''): ?>
-        <div class="sticky"><?= e(block('hero_sticky_label')) ?><span><?= e(block('hero_sticky_value')) ?></span></div>
-      <?php endif; ?>
     </div>
   </div>
 </section>

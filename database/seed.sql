@@ -71,11 +71,11 @@ INSERT INTO `content_blocks` (`key`, `section`, `label`, `hint`, `type`, `value`
 ('nav_cta_label',        'header', 'Header button label',     '', 'text', 'Start a Consultation', 3, NOW()),
 
 -- Hero
-('hero_case_tag',        'hero', 'Case file tag',      'The small monospaced label above the headline.', 'text', 'CASE FILE - EB/2026/0417 - OPEN', 1, NOW()),
-('hero_heading',         'hero', 'Headline',           'Wrap a word in [c]...[/c] to give it the hand-drawn circle.', 'text', 'Bids that read with clarity, confidence & [c]credibility.[/c]', 2, NOW()),
-('hero_lead',            'hero', 'Intro paragraph',    '', 'textarea', 'A specialist bid-writing consultancy for UK organisations - compliant, commissioner-ready submissions, done for you.', 3, NOW()),
-('hero_btn_primary',     'hero', 'Primary button',     '', 'text', 'Submit a Consultation Request', 4, NOW()),
-('hero_btn_secondary',   'hero', 'Secondary button',   '', 'text', 'See Our Services', 5, NOW()),
+('hero_case_tag',        'hero', 'Case file tag',      'The small monospaced label above the headline.', 'text', 'MORE BIDS. BETTER BIDS.', 1, NOW()),
+('hero_heading',         'hero', 'Headline',           'Wrap a word in [c]...[/c] to give it the brand highlight.', 'text', 'We help you prepare [c]winning[/c] bids that deliver', 2, NOW()),
+('hero_lead',            'hero', 'Intro paragraph',    '', 'textarea', 'Expert bid writing services that help businesses win more opportunities and grow with confidence.', 3, NOW()),
+('hero_btn_primary',     'hero', 'Primary button',     '', 'text', 'Our Services →', 4, NOW()),
+('hero_btn_secondary',   'hero', 'Secondary button',   '', 'text', 'How We Work →', 5, NOW()),
 ('hero_trust_1_value',   'hero', 'Trust stat 1 - value', '', 'text', '8', 6, NOW()),
 ('hero_trust_1_label',   'hero', 'Trust stat 1 - label', '', 'text', 'Portals covered', 7, NOW()),
 ('hero_trust_2_value',   'hero', 'Trust stat 2 - value', '', 'text', 'NDA', 8, NOW()),

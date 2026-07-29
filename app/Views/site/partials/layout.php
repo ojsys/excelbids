@@ -56,7 +56,7 @@ $messages = App\Core\Flash::messages();
 <?= Branding::faviconTags() ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Public+Sans:wght@400;500;600;700&family=Caveat:wght@600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= e(asset('css/site.css')) ?>">
 <?php if ($analytics): ?>
 <script async src="https://www.googletagmanager.com/gtag/js?id=<?= e($analytics) ?>"></script>
@@ -115,6 +115,18 @@ $messages = App\Core\Flash::messages();
 
   <?= $content ?>
 </main>
+
+<div class="brand-promise-bar">
+  <div class="wrap brand-promise-inner">
+    <span>🔍 <strong>Prepare.</strong></span>
+    <span class="sep">|</span>
+    <span>✈ <strong>Submit.</strong></span>
+    <span class="sep">|</span>
+    <span>🏆 <strong>Win.</strong></span>
+    <span class="sep">|</span>
+    <span class="promise-tag">That's the <strong>Excel Bids</strong> promise.</span>
+  </div>
+</div>
 
 <footer>
   <div class="wrap">
