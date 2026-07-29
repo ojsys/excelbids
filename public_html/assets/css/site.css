@@ -553,3 +553,126 @@ a.pb-card:hover { transform: translateY(-3px); box-shadow: 0 14px 26px -14px rgb
   .hero h1 { font-size: 28px; }
   .svc-grid, .proof-inner, .why-grid, .foot-grid, .pb-cols-2 { grid-template-columns: 1fr; }
 }
+
+/* -------------------------------------------------------------------------
+   Document panel & sign-off sheet (page builder)
+
+   Self-contained on purpose. These previously borrowed the home page hero's
+   .doc-page / .signoff rules; when the hero was redesigned those rules went
+   away and the blocks rendered unstyled — including a full-width paperclip.
+   ------------------------------------------------------------------------- */
+
+/* The right gutter is where the handwritten note sits. Without it the note
+   overlaps the document text, because the panel is narrower here than in the
+   hero it was originally designed for. */
+.pb-doc{position:relative; padding-top:10px; padding-right:40px; margin-bottom:22px;}
+.pb-doc-page{
+  background:#fff; border:1px solid var(--line); border-radius:2px;
+  /* Keep it document-shaped. Stretched across a full-width section the panel
+     goes short and wide, which collides the stamp with the handwritten note. */
+  max-width:620px;
+  padding:30px 30px 40px; position:relative;
+  background-image:repeating-linear-gradient(to bottom, transparent, transparent 26px, var(--paper-line, #E7E2D2) 27px);
+  box-shadow:0 24px 60px -24px rgba(20,20,15,0.28);
+  transform:rotate(0.6deg);
+}
+/* Belt and braces alongside the width/height attributes on the SVG itself. */
+/* The stamp is absolutely positioned, so short documents need the space
+   reserved or it lands on the last line of text. */
+.pb-doc-page.has-stamp{padding-bottom:130px; min-height:220px;}
+.pb-doc-clip{position:absolute; top:-16px; left:26px; width:34px; height:50px; opacity:.55;}
+.pb-doc-topline{
+  font-family:'IBM Plex Mono', ui-monospace, monospace; letter-spacing:.02em;
+  font-size:10.5px; color:var(--ink-soft); margin-bottom:16px;
+}
+.pb-doc-text{font-size:13.5px; color:var(--ink); margin:0 0 14px; line-height:1.9;}
+.pb-doc-text .mark{background:var(--red-wash); padding:0 3px; border-bottom:2px solid var(--red);}
+.pb-doc-note{
+  position:absolute; right:-34px; top:52px; width:112px; text-align:left;
+  font-family:'Caveat', cursive; font-weight:600; font-size:18px;
+  color:var(--red); line-height:1.15; transform:rotate(-2deg);
+}
+.pb-doc-stamp{
+  position:absolute; right:26px; bottom:22px;
+  width:104px; height:104px; border-radius:50%;
+  border:3px double var(--red); color:var(--red);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12px; letter-spacing:.06em;
+  transform:rotate(-11deg); opacity:.88;
+}
+.pb-doc-sticky{
+  position:absolute; left:-22px; bottom:-26px; width:120px;
+  background:#F2E08F; padding:14px 14px 16px; box-shadow:0 10px 20px -8px rgba(0,0,0,.25);
+  transform:rotate(-4deg); font-family:'IBM Plex Mono', monospace;
+  font-size:9.5px; color:#4A431C; letter-spacing:.06em;
+}
+.pb-doc-sticky span{display:block; margin-top:6px; font-size:11px; font-weight:600; color:#2E2810;}
+
+.pb-signoff{
+  background:#fff; border:1px solid var(--line); border-radius:3px;
+  padding:28px 32px; max-width:640px; margin-bottom:22px;
+}
+.pb-signoff-row{display:flex; gap:14px; padding:12px 0; border-bottom:1px dashed var(--line); align-items:flex-start;}
+.pb-signoff-row:last-of-type{border-bottom:none;}
+.pb-signoff-box{
+  width:22px; height:22px; border:2px solid var(--ink); border-radius:2px;
+  flex-shrink:0; position:relative; margin-top:2px;
+}
+.pb-signoff-box::after{
+  content:"✓"; position:absolute; inset:-3px 0 0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Caveat', cursive; font-weight:700; font-size:20px; color:var(--red);
+}
+.pb-signoff-row h4{font-size:15px; font-weight:600;}
+.pb-signoff-row p{font-size:13px; color:var(--ink-soft); margin:3px 0 0;}
+.pb-signoff-sign{
+  margin-top:22px; padding-top:22px; border-top:1px solid var(--line);
+  display:flex; justify-content:space-between; align-items:flex-end; gap:20px; flex-wrap:wrap;
+}
+.pb-signoff-sig{font-family:'Caveat', cursive; font-weight:600; font-size:30px; color:var(--ink);}
+.pb-signoff-meta{
+  font-family:'IBM Plex Mono', monospace; font-size:10.5px;
+  color:var(--ink-soft); text-align:right;
+}
+
+/* The annotations crowd the text on narrow screens. */
+@media (max-width:720px){
+  .pb-doc-note,.pb-doc-sticky{display:none;}
+  /* The note is hidden here, so reclaim its gutter. */
+  .pb-doc{padding-right:0;}
+  .pb-doc-page{padding:22px 20px 30px; transform:none;}
+  .pb-doc-stamp{width:82px; height:82px; font-size:10px; right:14px; bottom:14px;}
+  .pb-signoff{padding:22px 20px;}
+}
+
+/* -------------------------------------------------------------------------
+   Public form primitives
+
+   Used by the consultation page and by every `form` block. Kept here rather
+   than alongside a specific page's styles so a redesign cannot strip them —
+   losing .honeypot in particular would expose the spam-trap field to real
+   visitors and stop the trap working.
+   ------------------------------------------------------------------------- */
+
+.honeypot{position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden;}
+
+.field-row{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+.field-error{display:block; font-size:12.5px; color:var(--red); margin-top:5px; font-weight:500;}
+.field.has-error .input,
+.field.has-error .select,
+.field.has-error .textarea{border-color:var(--red); background:#FDF6F5;}
+
+.checkline{display:flex; gap:10px; align-items:flex-start; font-size:13.5px; color:var(--ink-soft); line-height:1.55; cursor:pointer;}
+.checkline input{margin-top:3px; accent-color:var(--red); width:16px; height:16px; flex-shrink:0;}
+
+.confirm-stamp{
+  width:120px; height:120px; margin:0 auto 24px; border-radius:50%;
+  border:3px double var(--green); color:var(--green);
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  transform:rotate(-8deg);
+  font-family:'IBM Plex Mono', monospace; font-weight:600; font-size:12px; letter-spacing:.05em;
+}
+
+@media (max-width:600px){
+  .field-row{grid-template-columns:1fr;}
+}
