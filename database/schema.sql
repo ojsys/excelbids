@@ -416,16 +416,64 @@ CREATE TABLE IF NOT EXISTS `pages` (
   `id`          INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `slug`        VARCHAR(120) NOT NULL,
   `title`       VARCHAR(190) NOT NULL,
+  `layout_mode` ENUM('blocks','html') NOT NULL DEFAULT 'blocks',
   `body`        MEDIUMTEXT NULL,
   `meta_title`  VARCHAR(190) NOT NULL DEFAULT '',
   `meta_description` VARCHAR(255) NOT NULL DEFAULT '',
   `is_published` TINYINT(1) NOT NULL DEFAULT 1,
   `show_in_footer` TINYINT(1) NOT NULL DEFAULT 0,
+  `show_page_header` TINYINT(1) NOT NULL DEFAULT 1,
+  `hero_eyebrow` VARCHAR(120) NOT NULL DEFAULT '',
+  `hero_intro`  VARCHAR(500) NOT NULL DEFAULT '',
   `sort_order`  INT NOT NULL DEFAULT 0,
   `created_at`  DATETIME NOT NULL,
   `updated_at`  DATETIME NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_pages_slug` (`slug`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Page builder: ordered, optionally nested content blocks
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `page_blocks` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `page_id`      INT UNSIGNED NOT NULL,
+  -- NULL for a top-level section; otherwise the section this block sits in.
+  `parent_id`    INT UNSIGNED NULL,
+  `block_type`   VARCHAR(40) NOT NULL,
+  -- Which column of the parent section, 0-indexed.
+  `column_index` TINYINT UNSIGNED NOT NULL DEFAULT 0,
+  `sort_order`   INT NOT NULL DEFAULT 0,
+  -- All per-block configuration, JSON encoded.
+  `settings`     MEDIUMTEXT NULL,
+  `is_visible`   TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at`   DATETIME NOT NULL,
+  `updated_at`   DATETIME NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_blocks_page` (`page_id`, `parent_id`, `column_index`, `sort_order`),
+  CONSTRAINT `fk_blocks_page` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_blocks_parent` FOREIGN KEY (`parent_id`) REFERENCES `page_blocks` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ---------------------------------------------------------------------------
+-- Media library — images used by page blocks
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `media` (
+  `id`            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `original_name` VARCHAR(255) NOT NULL,
+  `stored_name`   VARCHAR(255) NOT NULL,
+  `mime_type`     VARCHAR(120) NOT NULL DEFAULT '',
+  `size_bytes`    INT UNSIGNED NOT NULL DEFAULT 0,
+  `width`         INT UNSIGNED NULL,
+  `height`        INT UNSIGNED NULL,
+  `alt_text`      VARCHAR(255) NOT NULL DEFAULT '',
+  `uploaded_by`   INT UNSIGNED NULL,
+  `created_at`    DATETIME NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_media_created` (`created_at`),
+  CONSTRAINT `fk_media_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS `menu_items` (

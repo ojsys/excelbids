@@ -40,12 +40,39 @@ $val = static function (string $key, $default = '') use ($page) {
       </div>
 
       <div class="field">
-        <label for="body">Page content</label>
-        <textarea class="textarea" id="body" name="body" style="min-height:320px;font-family:'IBM Plex Mono',monospace;font-size:13px;"><?= e((string) $val('body')) ?></textarea>
+        <label for="layout_mode">Editor mode</label>
+        <select class="input" id="layout_mode" name="layout_mode">
+          <option value="blocks"<?= (string) $val('layout_mode', 'blocks') === 'blocks' ? ' selected' : '' ?>>Page Builder (blocks)</option>
+          <option value="html"<?= (string) $val('layout_mode', 'blocks') === 'html' ? ' selected' : '' ?>>Custom HTML</option>
+        </select>
+        <span class="help">Use the visual block builder or hand-written HTML for this page.</span>
+      </div>
+
+      <div class="field">
+        <label for="body">Page content (Custom HTML mode only)</label>
+        <textarea class="textarea" id="body" name="body" style="min-height:200px;font-family:'IBM Plex Mono',monospace;font-size:13px;"><?= e((string) $val('body')) ?></textarea>
         <span class="help">
           Basic HTML is allowed: <code>&lt;p&gt; &lt;h2&gt; &lt;h3&gt; &lt;strong&gt; &lt;em&gt; &lt;ul&gt; &lt;ol&gt; &lt;li&gt; &lt;a&gt; &lt;table&gt;</code>.
           Anything else is stripped when you save.
         </span>
+      </div>
+
+      <div class="form-section">
+        <h3>Page Header</h3>
+        <div class="u-stack" style="margin-bottom:14px;">
+          <label class="checkline">
+            <input type="checkbox" name="show_page_header" value="1" <?= (string) $val('show_page_header', '1') === '1' ? 'checked' : '' ?>>
+            <span>Show page header banner</span>
+          </label>
+        </div>
+        <div class="field">
+          <label for="hero_eyebrow">Eyebrow label</label>
+          <input class="input" type="text" id="hero_eyebrow" name="hero_eyebrow" maxlength="120" value="<?= e((string) $val('hero_eyebrow')) ?>" placeholder="e.g. ABOUT EXCELBIDS">
+        </div>
+        <div class="field">
+          <label for="hero_intro">Intro text</label>
+          <textarea class="textarea sm" id="hero_intro" name="hero_intro" maxlength="500" data-autogrow><?= e((string) $val('hero_intro')) ?></textarea>
+        </div>
       </div>
 
       <div class="form-section">

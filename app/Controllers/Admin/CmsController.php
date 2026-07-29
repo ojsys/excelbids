@@ -361,6 +361,7 @@ final class CmsController extends Controller
 
     public function pages(Request $request): void
     {
+        \App\Core\Schema::migrate();
         $this->view('admin/cms/pages', [
             'pageTitle' => 'Pages',
             'heading'   => 'Pages',
@@ -539,7 +540,7 @@ final class CmsController extends Controller
         );
 
         // Reserved paths would be shadowed by the app's own routes.
-        if (in_array($slug, ['admin', 'portal', 'install', 'consultation', 'services', 'assets', 'robots.txt', 'sitemap.xml'], true)) {
+        if (in_array($slug, ['admin', 'portal', 'install', 'consultation', 'assets', 'robots.txt', 'sitemap.xml'], true)) {
             $validator->addError('slug', 'That URL is reserved by the system. Please choose another.');
         }
 
@@ -551,6 +552,10 @@ final class CmsController extends Controller
             'title'            => (string) $request->input('title'),
             'slug'             => $slug,
             'body'             => Content::sanitizeHtml((string) $request->raw('body', '')),
+            'layout_mode'      => $request->input('layout_mode', 'blocks') === 'html' ? 'html' : 'blocks',
+            'show_page_header' => $request->boolean('show_page_header') ? 1 : 0,
+            'hero_eyebrow'     => (string) $request->input('hero_eyebrow', ''),
+            'hero_intro'       => (string) $request->input('hero_intro', ''),
             'meta_title'       => (string) $request->input('meta_title', ''),
             'meta_description' => (string) $request->input('meta_description', ''),
             'is_published'     => $request->boolean('is_published') ? 1 : 0,

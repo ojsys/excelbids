@@ -17,12 +17,15 @@ use App\Core\Router;
 $router->get('/', 'Site\HomeController@index');
 $router->form('/consultation', 'Site\EnquiryController@request');
 $router->get('/consultation/thank-you', 'Site\EnquiryController@thankYou');
-$router->get('/services', 'Site\HomeController@services');
 $router->get('/sitemap.xml', 'Site\HomeController@sitemap');
 $router->get('/robots.txt', 'Site\HomeController@robots');
 
 // Logo, favicon and share image. Stored outside the web root, so streamed.
 $router->get('/branding/{file}', 'Site\BrandingController@show');
+
+// Page builder assets and form submissions.
+$router->get('/media/{id}', 'Site\MediaController@show');
+$router->post('/forms/{blockId}', 'Site\FormController@submit');
 
 // ---------------------------------------------------------------------------
 // Admin panel
@@ -126,6 +129,18 @@ $router->group('/admin', ['csrf'], static function (Router $router): void {
             $router->form('/pages/create', 'Admin\CmsController@createPage');
             $router->form('/pages/{id}/edit', 'Admin\CmsController@editPage');
             $router->post('/pages/{id}/delete', 'Admin\CmsController@deletePage');
+
+            // Page builder
+            $router->get('/pages/{id}/build', 'Admin\PageBuilderController@index');
+            $router->post('/pages/{id}/blocks', 'Admin\PageBuilderController@addBlock');
+            $router->post('/pages/{id}/blocks/{blockId}/save', 'Admin\PageBuilderController@saveBlock');
+            $router->post('/pages/{id}/blocks/{blockId}/{action}', 'Admin\PageBuilderController@blockAction');
+
+            // Media library
+            $router->get('/media', 'Admin\PageBuilderController@media');
+            $router->post('/media/upload', 'Admin\PageBuilderController@uploadMedia');
+            $router->post('/media/{id}/delete', 'Admin\PageBuilderController@deleteMedia');
+
             $router->form('/menus', 'Admin\CmsController@menus');
         });
 

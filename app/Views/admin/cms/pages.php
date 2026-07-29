@@ -35,6 +35,9 @@
               <td class="u-small u-muted"><?= (int) $page['show_in_footer'] === 1 ? 'Yes' : 'No' ?></td>
               <td class="u-small u-muted"><?= e(fdate((string) ($page['updated_at'] ?: $page['created_at']))) ?></td>
               <td class="actions">
+                <?php if (($page['layout_mode'] ?? 'blocks') === 'blocks'): ?>
+                  <a href="<?= e(path('admin/cms/pages/' . $page['id'] . '/build')) ?>" class="btn btn-red btn-sm">Page builder</a>
+                <?php endif; ?>
                 <?php if ((int) $page['is_published'] === 1): ?>
                   <a href="<?= e(path((string) $page['slug'])) ?>" target="_blank" rel="noopener" class="btn btn-subtle btn-sm">View ↗</a>
                 <?php endif; ?>

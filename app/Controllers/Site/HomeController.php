@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Controllers\Site;
 
+use App\Core\BlockRenderer;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Settings;
+use App\Models\Page;
 
 /**
  * The public marketing site. Every piece of copy comes from the CMS.
@@ -19,6 +21,7 @@ final class HomeController extends Controller
 
     public function index(Request $request): void
     {
+        \App\Core\Schema::migrate();
         $sections = Database::all('SELECT * FROM page_sections WHERE is_visible = 1 ORDER BY sort_order, id');
 
         $this->view('site/home', [
@@ -27,31 +30,24 @@ final class HomeController extends Controller
         ]);
     }
 
-    /** A standalone services page, useful for direct linking and SEO. */
-    public function services(Request $request): void
-    {
-        $this->view('site/services', [
-            'services'   => Database::all('SELECT * FROM services WHERE is_active = 1 ORDER BY sort_order, id'),
-            'sectors'    => Database::all('SELECT * FROM sectors WHERE is_active = 1 ORDER BY sort_order, id'),
-            'pageTitle'  => 'Services — ' . Settings::get('site_name', 'ExcelBids'),
-            'metaDescription' => 'Tender writing, bid reviews, PQQ and SQ completion, framework applications, grant proposals and bid management for UK organisations.',
-        ]);
-    }
-
-    /** A CMS-managed standalone page such as the privacy policy. */
+    /** A CMS-managed page: builder blocks, or hand-written HTML. */
     public function page(Request $request, array $params): void
     {
-        $page = Database::first(
-            'SELECT * FROM pages WHERE slug = ? AND is_published = 1',
-            [(string) ($params['slug'] ?? '')]
-        );
+        \App\Core\Schema::migrate();
+        $page = Page::findBySlug((string) ($params['slug'] ?? ''));
 
         if ($page === null) {
             $this->notFound('That page could not be found.');
         }
 
+        $blocksHtml = '';
+        if (($page['layout_mode'] ?? 'html') === 'blocks') {
+            $blocksHtml = BlockRenderer::render(Page::blockTree((int) $page['id'], true));
+        }
+
         $this->view('site/page', [
             'page'            => $page,
+            'blocksHtml'      => $blocksHtml,
             'pageTitle'       => ($page['meta_title'] !== '' ? $page['meta_title'] : $page['title'])
                                  . ' — ' . Settings::get('site_name', 'ExcelBids'),
             'metaDescription' => $page['meta_description'],
@@ -64,14 +60,13 @@ final class HomeController extends Controller
 
         $urls = [
             ['loc' => url('/'), 'priority' => '1.0', 'lastmod' => date('Y-m-d')],
-            ['loc' => url('services'), 'priority' => '0.8', 'lastmod' => date('Y-m-d')],
             ['loc' => url('consultation'), 'priority' => '0.9', 'lastmod' => date('Y-m-d')],
         ];
 
         foreach ($pages as $page) {
             $urls[] = [
                 'loc'      => url($page['slug']),
-                'priority' => '0.4',
+                'priority' => '0.7',
                 'lastmod'  => date('Y-m-d', strtotime((string) ($page['updated_at'] ?: $page['created_at']))),
             ];
         }
