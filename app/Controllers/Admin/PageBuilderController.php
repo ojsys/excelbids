@@ -220,6 +220,13 @@ final class PageBuilderController extends Controller
             $this->redirect('admin/cms/media');
         }
 
+        $letters = \App\Models\OutcomeLetter::usingMedia($id);
+        if ($letters !== []) {
+            $titles = implode(', ', array_column($letters, 'title'));
+            Flash::error('That image is still used by these outcome letters: ' . $titles . '. Remove it from those first.');
+            $this->redirect('admin/cms/media');
+        }
+
         Media::remove($id);
         Activity::log('media.deleted', 'media', $id, 'Deleted ' . $media['original_name']);
 

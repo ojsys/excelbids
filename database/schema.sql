@@ -476,6 +476,34 @@ CREATE TABLE IF NOT EXISTS `media` (
   CONSTRAINT `fk_media_user` FOREIGN KEY (`uploaded_by`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------------------------------------------------------------------------
+-- Outcome letters — award and feedback letters published as public proof.
+--
+-- Deliberately separate from `documents`: those are private client files, these
+-- are redacted copies the client has agreed we may show. Nothing here reaches
+-- the public site until is_approved is set.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE IF NOT EXISTS `outcome_letters` (
+  `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `title`        VARCHAR(190) NOT NULL,
+  `organisation` VARCHAR(140) NOT NULL DEFAULT '',
+  `sector`       VARCHAR(140) NOT NULL DEFAULT '',
+  `outcome`      VARCHAR(60) NOT NULL DEFAULT '',
+  `received_on`  DATE NULL,
+  `summary`      VARCHAR(500) NOT NULL DEFAULT '',
+  `quote`        VARCHAR(600) NOT NULL DEFAULT '',
+  `author_role`  VARCHAR(140) NOT NULL DEFAULT '',
+  `author_org`   VARCHAR(140) NOT NULL DEFAULT '',
+  `media_id`     INT UNSIGNED NULL,
+  `is_approved`  TINYINT(1) NOT NULL DEFAULT 0,
+  `sort_order`   INT NOT NULL DEFAULT 0,
+  `is_active`    TINYINT(1) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `idx_outcome_sort` (`is_active`, `is_approved`, `sort_order`),
+  CONSTRAINT `fk_outcome_media` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS `menu_items` (
   `id`         INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `location`   ENUM('primary','footer_company','footer_start','footer_contact') NOT NULL DEFAULT 'primary',

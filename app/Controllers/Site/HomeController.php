@@ -63,6 +63,11 @@ final class HomeController extends Controller
             ['loc' => url('consultation'), 'priority' => '0.9', 'lastmod' => date('Y-m-d')],
         ];
 
+        // Only worth indexing once there is something approved to show.
+        if (\App\Models\OutcomeLetter::publishedCount() > 0) {
+            $urls[] = ['loc' => url('outcome-letters'), 'priority' => '0.8', 'lastmod' => date('Y-m-d')];
+        }
+
         foreach ($pages as $page) {
             $urls[] = [
                 'loc'      => url($page['slug']),

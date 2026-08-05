@@ -136,6 +136,25 @@ final class CmsController extends Controller
                 'footnote'       => ['label' => 'Footnote', 'type' => 'text', 'max' => 255],
             ],
         ],
+        'outcome-letters' => [
+            'table'   => 'outcome_letters',
+            'label'   => 'Outcome letters',
+            'singular' => 'outcome letter',
+            'intro'   => 'The public Outcome Letters page. Nothing appears on the website until "Client has approved publication" is ticked — upload a redacted copy, never the original.',
+            'columns' => [
+                'title'        => ['label' => 'Letter title', 'type' => 'text', 'max' => 190, 'required' => true, 'help' => 'What the letter is about, e.g. "Domiciliary care framework — award confirmation".'],
+                'outcome'      => ['label' => 'Outcome', 'type' => 'text', 'max' => 60, 'help' => 'The stamp across the card, e.g. Contract awarded, Shortlisted, Framework place.'],
+                'organisation' => ['label' => 'Client or buyer', 'type' => 'text', 'max' => 140, 'help' => 'Leave blank, or write "Anonymised", if you do not have permission to name them.'],
+                'sector'       => ['label' => 'Sector', 'type' => 'text', 'max' => 140],
+                'received_on'  => ['label' => 'Date received', 'type' => 'date'],
+                'summary'      => ['label' => 'Summary', 'type' => 'textarea', 'max' => 500, 'help' => 'A sentence or two of context shown above the letter.'],
+                'media_id'     => ['label' => 'Letter image', 'type' => 'media', 'help' => 'A redacted scan of the letter, as JPG, PNG or WebP. Black out names, prices and any other bidder\'s scores before exporting.'],
+                'quote'        => ['label' => 'Client feedback', 'type' => 'textarea', 'max' => 600, 'help' => 'Optional — what the client said about the result.'],
+                'author_role'  => ['label' => 'Feedback — job title', 'type' => 'text', 'max' => 140],
+                'author_org'   => ['label' => 'Feedback — organisation', 'type' => 'text', 'max' => 140],
+                'is_approved'  => ['label' => 'Client has approved publication', 'type' => 'bool', 'help' => 'Tick only once you hold written permission. Until this is ticked the letter stays off the website.'],
+            ],
+        ],
     ];
 
     /** The editable copy groups, in the order they appear on the page. */
@@ -151,6 +170,7 @@ final class CmsController extends Controller
         'qa'          => 'QA sign-off (File §05)',
         'why'         => 'Why choose us (File §06)',
         'proof'       => 'Proof of work (File §07)',
+        'outcome'     => 'Outcome letters page',
         'faq'         => 'FAQ heading (File §08)',
         'cta'         => 'Closing call to action',
         'footer'      => 'Footer',
@@ -300,10 +320,27 @@ final class CmsController extends Controller
         $data = [];
         $rules = [];
         $labels = [];
+        $uploadErrors = [];
 
         foreach ($collection['columns'] as $column => $definition) {
-            if (($definition['type'] ?? 'text') === 'bool') {
+            $columnType = $definition['type'] ?? 'text';
+
+            if ($columnType === 'bool') {
                 $data[$column] = $request->boolean($column) ? 1 : 0;
+                continue;
+            }
+
+            if ($columnType === 'media') {
+                $data[$column] = $this->resolveMediaColumn($request, $column, $uploadErrors);
+                $labels[$column] = (string) $definition['label'];
+                continue;
+            }
+
+            if ($columnType === 'date') {
+                $value = trim((string) $request->input($column, ''));
+                $data[$column] = $value === '' ? null : $value;
+                $rules[$column] = 'nullable|date';
+                $labels[$column] = (string) $definition['label'];
                 continue;
             }
 
@@ -320,6 +357,13 @@ final class CmsController extends Controller
         }
 
         $validator = Validator::make($request->all(), $rules, $labels);
+
+        // A rejected upload is reported alongside any other field errors rather
+        // than on its own, so the editor sees everything wrong in one pass.
+        foreach ($uploadErrors as $column => $message) {
+            $validator->addError($column, $message);
+        }
+
         if ($validator->fails()) {
             Flash::failValidation($validator->errors(), $request->all(), '/admin/cms/list/' . $type);
         }
@@ -519,6 +563,43 @@ final class CmsController extends Controller
 
     // -- Internals ----------------------------------------------------------
 
+    /**
+     * Work out the media id for an image column.
+     *
+     * A new upload wins; otherwise the row keeps the image it already had,
+     * unless the editor asked for it to be removed. Images go into the shared
+     * media library, so the public /media/{id} route serves them with no extra
+     * plumbing.
+     *
+     * @param array<string,string> $errors Collected by reference for the validator.
+     */
+    private function resolveMediaColumn(Request $request, string $column, array &$errors): ?int
+    {
+        $existing = $request->int($column . '_existing', 0);
+        $current = $existing > 0 ? $existing : null;
+
+        $file = $_FILES[$column] ?? null;
+        $wasUploaded = is_array($file)
+            && (int) ($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_NO_FILE;
+
+        if ($wasUploaded) {
+            try {
+                $stored = \App\Core\Uploader::storeImage($file, 'media');
+            } catch (\RuntimeException $e) {
+                $errors[$column] = $e->getMessage();
+                return $current;
+            }
+
+            return \App\Models\Media::record($stored, (string) $request->input('title', ''));
+        }
+
+        if ($request->boolean($column . '_remove')) {
+            return null;
+        }
+
+        return $current;
+    }
+
     /** @return array<string,mixed> */
     private function validatePage(Request $request, string $redirectTo, ?int $ignoreId = null): array
     {
@@ -540,7 +621,7 @@ final class CmsController extends Controller
         );
 
         // Reserved paths would be shadowed by the app's own routes.
-        if (in_array($slug, ['admin', 'portal', 'install', 'consultation', 'assets', 'robots.txt', 'sitemap.xml'], true)) {
+        if (in_array($slug, ['admin', 'portal', 'install', 'consultation', 'assets', 'media', 'branding', 'outcome-letters', 'robots.txt', 'sitemap.xml'], true)) {
             $validator->addError('slug', 'That URL is reserved by the system. Please choose another.');
         }
 

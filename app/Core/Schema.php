@@ -15,7 +15,7 @@ namespace App\Core;
 final class Schema
 {
     /** Bump when a step is added. */
-    private const VERSION = 3;
+    private const VERSION = 4;
 
     private static bool $checkedThisRequest = false;
 
@@ -41,6 +41,9 @@ final class Schema
             }
             if ($current < 3) {
                 self::stepThree();
+            }
+            if ($current < 4) {
+                self::stepFour();
             }
 
             Settings::set('schema_version', (string) self::VERSION);
@@ -369,6 +372,81 @@ final class Schema
                 'label'      => 'Contact Us',
                 'url'        => '/contact',
                 'sort_order' => 6,
+                'is_active'  => 1,
+            ]);
+        }
+    }
+
+    /** The public Outcome Letters page: its table, its copy, and its nav link. */
+    private static function stepFour(): void
+    {
+        if (!self::hasTable('outcome_letters')) {
+            Database::run(
+                "CREATE TABLE `outcome_letters` (
+                    `id`           INT UNSIGNED NOT NULL AUTO_INCREMENT,
+                    `title`        VARCHAR(190) NOT NULL,
+                    `organisation` VARCHAR(140) NOT NULL DEFAULT '',
+                    `sector`       VARCHAR(140) NOT NULL DEFAULT '',
+                    `outcome`      VARCHAR(60) NOT NULL DEFAULT '',
+                    `received_on`  DATE NULL,
+                    `summary`      VARCHAR(500) NOT NULL DEFAULT '',
+                    `quote`        VARCHAR(600) NOT NULL DEFAULT '',
+                    `author_role`  VARCHAR(140) NOT NULL DEFAULT '',
+                    `author_org`   VARCHAR(140) NOT NULL DEFAULT '',
+                    `media_id`     INT UNSIGNED NULL,
+                    `is_approved`  TINYINT(1) NOT NULL DEFAULT 0,
+                    `sort_order`   INT NOT NULL DEFAULT 0,
+                    `is_active`    TINYINT(1) NOT NULL DEFAULT 1,
+                    PRIMARY KEY (`id`),
+                    KEY `idx_outcome_sort` (`is_active`, `is_approved`, `sort_order`),
+                    CONSTRAINT `fk_outcome_media` FOREIGN KEY (`media_id`) REFERENCES `media` (`id`) ON DELETE SET NULL
+                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+            );
+        }
+
+        // Page copy, editable under Website content → Outcome letters page.
+        $blocks = [
+            ['outcome_eyebrow', 'Eyebrow label', '', 'text', 'PROOF OF OUTCOME', 1],
+            ['outcome_heading', 'Page heading', '', 'text', 'Outcome Letters', 2],
+            ['outcome_intro', 'Intro paragraph', 'Shown under the heading.', 'textarea',
+             'Award notifications and evaluator feedback from bids we have written. Every letter here is published with the client\'s written permission, and commercially sensitive detail has been redacted.', 3],
+            ['outcome_consent_note', 'Footnote', 'The small print under the letters.', 'textarea',
+             'Client names and contract values are shown only where we have been given permission to do so.', 4],
+            ['outcome_empty', 'Empty state message', 'Shown when no letters are published yet.', 'text',
+             'Approved outcome letters will appear here shortly.', 5],
+        ];
+
+        foreach ($blocks as [$key, $label, $hint, $type, $value, $order]) {
+            $exists = (int) Database::scalar(
+                'SELECT COUNT(*) FROM content_blocks WHERE `key` = ?',
+                [$key],
+                0
+            );
+            if ($exists === 0) {
+                Database::insert('content_blocks', [
+                    'key'        => $key,
+                    'section'    => 'outcome',
+                    'label'      => $label,
+                    'hint'       => $hint,
+                    'type'       => $type,
+                    'value'      => $value,
+                    'sort_order' => $order,
+                    'updated_at' => date('Y-m-d H:i:s'),
+                ]);
+            }
+        }
+
+        $menuExists = (int) Database::scalar(
+            "SELECT COUNT(*) FROM menu_items WHERE url = '/outcome-letters'",
+            [],
+            0
+        );
+        if ($menuExists === 0) {
+            Database::insert('menu_items', [
+                'location'   => 'primary',
+                'label'      => 'Outcome Letters',
+                'url'        => '/outcome-letters',
+                'sort_order' => 5,
                 'is_active'  => 1,
             ]);
         }

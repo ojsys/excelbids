@@ -15,6 +15,7 @@ use App\Core\Router;
 // ---------------------------------------------------------------------------
 
 $router->get('/', 'Site\HomeController@index');
+$router->get('/outcome-letters', 'Site\OutcomeLetterController@index');
 $router->form('/consultation', 'Site\EnquiryController@request');
 $router->get('/consultation/thank-you', 'Site\EnquiryController@thankYou');
 $router->get('/sitemap.xml', 'Site\HomeController@sitemap');

@@ -676,3 +676,129 @@ a.pb-card:hover { transform: translateY(-3px); box-shadow: 0 14px 26px -14px rgb
 @media (max-width:600px){
   .field-row{grid-template-columns:1fr;}
 }
+
+/* -------------------------------------------------------------------------
+   Standalone page header
+
+   Used by CMS pages written as HTML and by the Outcome Letters page. The
+   block-builder pages use .pb-page-head and are left alone.
+   ------------------------------------------------------------------------- */
+
+.page-head { background: var(--paper); border-bottom: 1px solid var(--paper-line); padding: 48px 0 40px; }
+.page-head h1 { font-size: 38px; line-height: 1.15; margin-top: 8px; }
+.page-head p { margin-top: 14px; max-width: 720px; color: var(--ink-soft); font-size: 16px; }
+
+/* -------------------------------------------------------------------------
+   Outcome letters
+
+   Each entry is a case file: the redacted scan on the left, the context and
+   the client's words on the right. The scan sits slightly off-square to match
+   the document motif used across the site.
+   ------------------------------------------------------------------------- */
+
+.ol-grid { display: grid; gap: 32px; }
+
+.ol-card {
+  background: #FFF;
+  border: 1.5px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+  box-shadow: 0 10px 30px -15px rgba(0, 0, 0, 0.08);
+}
+
+.ol-scan {
+  position: relative;
+  display: block;
+  border: 1px solid var(--paper-line);
+  border-radius: 10px;
+  background: var(--paper);
+  padding: 12px;
+  transform: rotate(-1deg);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.ol-scan:hover { transform: rotate(0deg); box-shadow: 0 14px 26px -14px rgba(0, 0, 0, 0.28); }
+.ol-scan img { width: 100%; border-radius: 6px; }
+
+.ol-scan-empty {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: none;
+}
+.ol-scan-empty:hover { box-shadow: none; }
+
+.ol-stamp {
+  position: absolute;
+  right: -10px;
+  bottom: 14px;
+  transform: rotate(-8deg);
+  background: var(--green-wash);
+  border: 2px solid var(--green);
+  color: var(--green);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  max-width: 90%;
+}
+.ol-scan-empty .ol-stamp { position: static; transform: rotate(-4deg); }
+
+.ol-meta { font-size: 11.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.08em; }
+.ol-title { font-size: 21px; line-height: 1.3; margin-top: 6px; }
+
+.ol-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.ol-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--navy);
+  background: var(--soft-grey);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.ol-summary { margin-top: 14px; font-size: 14.5px; color: var(--ink-soft); line-height: 1.7; }
+
+.ol-quote {
+  margin: 20px 0 0;
+  padding: 16px 20px;
+  border-left: 3px solid var(--orange);
+  background: var(--orange-wash);
+  border-radius: 0 10px 10px 0;
+}
+.ol-quote p { margin: 0; font-size: 14.5px; line-height: 1.7; color: var(--ink); }
+.ol-quote footer { margin-top: 12px; font-size: 13px; }
+.ol-quote footer strong { display: block; font-weight: 600; color: var(--ink); }
+.ol-quote footer span { color: var(--ink-soft); }
+
+.ol-note { margin-top: 32px; font-size: 12.5px; color: var(--ink-soft); max-width: 720px; }
+
+.ol-empty {
+  text-align: center;
+  padding: 56px 24px;
+  border: 1.5px dashed var(--line);
+  border-radius: 16px;
+  background: #FFF;
+}
+.ol-empty .mark { font-size: 34px; color: var(--ink-faint); display: block; }
+.ol-empty p { margin-top: 12px; color: var(--ink-soft); }
+
+@media (max-width: 900px) {
+  .ol-card { grid-template-columns: 1fr; }
+  .ol-scan { max-width: 420px; }
+}
+
+@media (max-width: 600px) {
+  .page-head { padding: 36px 0 30px; }
+  .page-head h1 { font-size: 28px; }
+  .ol-card { padding: 20px; }
+  .ol-stamp { right: 0; }
+}

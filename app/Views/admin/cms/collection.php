@@ -10,10 +10,22 @@
  */
 
 use App\Core\Flash;
+use App\Models\Media;
 
 $errors = Flash::errors();
 $columns = $collection['columns'];
 $firstColumn = array_key_first($columns);
+
+$mediaColumns = array_keys(array_filter($columns, static fn (array $d): bool => ($d['type'] ?? '') === 'media'));
+$hasUploads = $mediaColumns !== [];
+
+// Thumbnails for the edit panel, keyed by row id then column.
+$thumbnails = [];
+foreach ($items as $item) {
+    foreach ($mediaColumns as $column) {
+        $thumbnails[(int) $item['id']][$column] = Media::url(isset($item[$column]) ? (int) $item[$column] : null);
+    }
+}
 ?>
 
 <div class="tabs" style="overflow-x:auto;">
@@ -75,8 +87,13 @@ $firstColumn = array_key_first($columns);
                       $detail = [];
                       foreach (array_slice(array_keys($columns), 1) as $column) {
                           $value = (string) ($item[$column] ?? '');
-                          if (($columns[$column]['type'] ?? '') === 'bool') {
+                          $columnType = $columns[$column]['type'] ?? '';
+                          if ($columnType === 'bool') {
                               if ($value === '1') { $detail[] = $columns[$column]['label']; }
+                          } elseif ($columnType === 'media') {
+                              if ($value !== '' && $value !== '0') { $detail[] = 'Image attached'; }
+                          } elseif ($columnType === 'date') {
+                              if ($value !== '') { $detail[] = fdate($value); }
                           } elseif ($value !== '') {
                               $detail[] = str_excerpt($value, 40);
                           }
@@ -106,7 +123,8 @@ $firstColumn = array_key_first($columns);
       <h3 id="form-title">Add a <?= e((string) $collection['singular']) ?></h3>
     </div>
 
-    <form method="post" action="<?= e(path('admin/cms/list/' . $type . '/save')) ?>" data-guard-submit>
+    <form method="post" action="<?= e(path('admin/cms/list/' . $type . '/save')) ?>"
+          <?= $hasUploads ? 'enctype="multipart/form-data"' : '' ?> data-guard-submit>
       <?= csrf_field() ?>
       <input type="hidden" name="id" id="item-id" value="0">
 
@@ -119,6 +137,25 @@ $firstColumn = array_key_first($columns);
                 <input type="checkbox" name="<?= e($column) ?>" id="f-<?= e($column) ?>" value="1">
                 <span><?= e((string) $definition['label']) ?></span>
               </label>
+            <?php elseif ($inputType === 'media'): ?>
+              <label for="f-<?= e($column) ?>"><?= e((string) $definition['label']) ?></label>
+
+              <!-- Which image the row already has. Kept unless a new file is
+                   chosen or "remove" is ticked, so an edit that only changes
+                   the wording does not wipe the picture. -->
+              <input type="hidden" name="<?= e($column) ?>_existing" id="f-<?= e($column) ?>-existing" value="0">
+
+              <div class="media-preview" id="f-<?= e($column) ?>-preview" hidden
+                   style="margin-bottom:8px;padding:8px;border:1px solid var(--line);border-radius:6px;background:var(--paper, #fff);">
+                <img alt="" style="max-width:100%;max-height:180px;display:block;border-radius:4px;">
+                <label class="checkline" style="margin-top:8px;">
+                  <input type="checkbox" name="<?= e($column) ?>_remove" value="1">
+                  <span class="u-small">Remove this image</span>
+                </label>
+              </div>
+
+              <input class="input" type="file" id="f-<?= e($column) ?>" name="<?= e($column) ?>"
+                     accept="image/png,image/jpeg,image/webp">
             <?php else: ?>
               <label for="f-<?= e($column) ?>">
                 <?= e((string) $definition['label']) ?><?= !empty($definition['required']) ? ' <span class="req">*</span>' : '' ?>
@@ -127,6 +164,8 @@ $firstColumn = array_key_first($columns);
                 <textarea class="textarea sm" id="f-<?= e($column) ?>" name="<?= e($column) ?>" data-autogrow
                           maxlength="<?= (int) ($definition['max'] ?? 500) ?>"
                           <?= !empty($definition['required']) ? 'required' : '' ?>></textarea>
+              <?php elseif ($inputType === 'date'): ?>
+                <input class="input" type="date" id="f-<?= e($column) ?>" name="<?= e($column) ?>">
               <?php else: ?>
                 <input class="input" type="text" id="f-<?= e($column) ?>" name="<?= e($column) ?>"
                        maxlength="<?= (int) ($definition['max'] ?? 255) ?>"
@@ -159,15 +198,46 @@ $firstColumn = array_key_first($columns);
   // which keeps reordering and editing on one screen.
   var COLUMNS = <?= json_encode(array_keys($columns)) ?>;
   var BOOLS = <?= json_encode(array_keys(array_filter($columns, function ($d) { return ($d['type'] ?? '') === 'bool'; }))) ?>;
+  var MEDIA = <?= json_encode($mediaColumns) ?>;
+  var THUMBS = <?= json_encode($thumbnails, JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
   var DELETE_BASE = <?= json_encode(path('admin/cms/list/' . $type . '/')) ?>;
   var CSRF = <?= json_encode(App\Core\Csrf::token()) ?>;
   var SINGULAR = <?= json_encode((string) $collection['singular']) ?>;
+
+  // A file input's value cannot be set from script, so image columns are driven
+  // through a hidden id field plus a preview instead.
+  function setMediaField(column, mediaId, thumbnail) {
+    var existing = document.getElementById('f-' + column + '-existing');
+    var preview = document.getElementById('f-' + column + '-preview');
+    var input = document.getElementById('f-' + column);
+
+    if (existing) existing.value = mediaId || 0;
+    if (input) input.value = '';
+
+    if (!preview) return;
+    var remove = preview.querySelector('input[type="checkbox"]');
+    if (remove) remove.checked = false;
+
+    if (thumbnail) {
+      preview.querySelector('img').src = thumbnail;
+      preview.hidden = false;
+    } else {
+      preview.hidden = true;
+      preview.querySelector('img').removeAttribute('src');
+    }
+  }
 
   function loadItem(item) {
     document.getElementById('item-id').value = item.id;
     document.getElementById('form-title').textContent = 'Edit ' + SINGULAR;
 
     COLUMNS.forEach(function (column) {
+      if (MEDIA.indexOf(column) !== -1) {
+        var row = THUMBS[item.id] || {};
+        setMediaField(column, item[column], row[column]);
+        return;
+      }
+
       var field = document.getElementById('f-' + column);
       if (!field) return;
       if (BOOLS.indexOf(column) !== -1) {
@@ -196,6 +266,10 @@ $firstColumn = array_key_first($columns);
     document.getElementById('item-id').value = '0';
     document.getElementById('form-title').textContent = 'Add a ' + SINGULAR;
     COLUMNS.forEach(function (column) {
+      if (MEDIA.indexOf(column) !== -1) {
+        setMediaField(column, 0, null);
+        return;
+      }
       var field = document.getElementById('f-' + column);
       if (!field) return;
       if (BOOLS.indexOf(column) !== -1) { field.checked = false; } else { field.value = ''; }
