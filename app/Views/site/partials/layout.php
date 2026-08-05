@@ -99,7 +99,7 @@ $messages = App\Core\Flash::messages();
           <?= Auth::check(Auth::CLIENT) ? 'My Portal' : 'Client Login' ?>
         </a>
       <?php endif; ?>
-      <a href="<?= e(path('consultation')) ?>" class="btn btn-primary"><?= e(block('nav_cta_label', 'Start a Consultation')) ?></a>
+      
     </div>
   </nav>
 </header>
