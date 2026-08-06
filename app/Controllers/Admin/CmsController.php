@@ -141,6 +141,9 @@ final class CmsController extends Controller
             'label'   => 'Outcome letters',
             'singular' => 'outcome letter',
             'intro'   => 'The public Outcome Letters page. Nothing appears on the website until "Client has approved publication" is ticked — upload a redacted copy, never the original.',
+            // A second gate beyond "Live": the list shows why a letter is still
+            // off the site, so an unapproved one is never mistaken for published.
+            'gate'    => 'is_approved',
             'columns' => [
                 'title'        => ['label' => 'Letter title', 'type' => 'text', 'max' => 190, 'required' => true, 'help' => 'What the letter is about, e.g. "Domiciliary care framework — award confirmation".'],
                 'outcome'      => ['label' => 'Outcome', 'type' => 'text', 'max' => 60, 'help' => 'The stamp across the card, e.g. Contract awarded, Shortlisted, Framework place.'],

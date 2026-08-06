@@ -19,6 +19,12 @@ $firstColumn = array_key_first($columns);
 $mediaColumns = array_keys(array_filter($columns, static fn (array $d): bool => ($d['type'] ?? '') === 'media'));
 $hasUploads = $mediaColumns !== [];
 
+// Some lists need a second tick before they reach the website. Ticking "Live"
+// alone is not enough, so the status is spelled out rather than left to the
+// truncated detail column.
+$gate = $collection['gate'] ?? null;
+$gateLabel = $gate !== null ? (string) ($columns[$gate]['label'] ?? 'Approved') : '';
+
 // Thumbnails for the edit panel, keyed by row id then column.
 $thumbnails = [];
 foreach ($items as $item) {
@@ -63,6 +69,7 @@ foreach ($items as $item) {
               <tr>
                 <th style="width:70px;">Order</th>
                 <th style="width:60px;">Live</th>
+                <?php if ($gate !== null): ?><th style="width:150px;">On the website</th><?php endif; ?>
                 <th><?= e((string) $columns[$firstColumn]['label']) ?></th>
                 <th>Detail</th>
                 <th class="actions"></th>
@@ -81,11 +88,29 @@ foreach ($items as $item) {
                            <?= (int) $item['is_active'] === 1 ? 'checked' : '' ?>
                            style="accent-color:var(--red);width:16px;height:16px;" aria-label="Visible on the site">
                   </td>
+                  <?php if ($gate !== null): ?>
+                    <?php
+                      $isLive = (int) $item['is_active'] === 1;
+                      $isCleared = (int) ($item[$gate] ?? 0) === 1;
+                    ?>
+                    <td>
+                      <?php if ($isLive && $isCleared): ?>
+                        <span class="badge badge-success">Published</span>
+                      <?php elseif (!$isCleared): ?>
+                        <span class="badge badge-warning" title="<?= e($gateLabel) ?> is not ticked">Not approved</span>
+                      <?php else: ?>
+                        <span class="badge badge-neutral" title="Untick of the Live box hides this">Hidden</span>
+                      <?php endif; ?>
+                    </td>
+                  <?php endif; ?>
                   <td class="primary-cell"><?= e(str_excerpt((string) $item[$firstColumn], 46)) ?></td>
                   <td class="u-small u-muted">
                     <?php
                       $detail = [];
                       foreach (array_slice(array_keys($columns), 1) as $column) {
+                          if ($column === $gate) {
+                              continue; // Already shown as its own status.
+                          }
                           $value = (string) ($item[$column] ?? '');
                           $columnType = $columns[$column]['type'] ?? '';
                           if ($columnType === 'bool') {
