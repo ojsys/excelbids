@@ -188,7 +188,11 @@ final class PageBuilderController extends Controller
         }
 
         try {
-            $stored = \App\Core\Uploader::storeImage($file, 'media');
+            $stored = \App\Core\Uploader::storeImage(
+                $file,
+                'media',
+                \App\Core\Uploader::maxContentImageBytes()
+            );
         } catch (\RuntimeException $e) {
             Flash::error($e->getMessage());
             $this->redirect(ltrim($returnTo, '/'));

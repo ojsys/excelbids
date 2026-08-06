@@ -68,18 +68,38 @@ final class Uploader
     }
 
     /**
+     * Content images — media library pictures and outcome letter scans.
+     *
+     * A logo is a handful of kilobytes, but a scan of an A4 letter off a phone
+     * or an office scanner is routinely 3-8 MB, so the brand cap would reject
+     * almost every real letter. These get the ordinary upload allowance and are
+     * scaled down after storing instead, which is what actually keeps the page
+     * fast.
+     */
+    public static function maxContentImageBytes(): int
+    {
+        return self::maxBytes();
+    }
+
+    /** Longest edge kept for a stored content image. */
+    private const CONTENT_IMAGE_MAX_EDGE = 2000;
+
+    /**
      * Validate and store a brand image.
      *
      * Kept separate from store() because the accepted types, size limit and
      * post-processing all differ — and because SVGs need sanitising.
      *
-     * @param array<string,mixed> $file A single entry from $_FILES
+     * @param array<string,mixed> $file    A single entry from $_FILES
+     * @param int|null            $maxBytes Size ceiling; defaults to the brand-asset cap.
      * @return array{original_name:string,stored_name:string,mime_type:string,size_bytes:int}
      * @throws RuntimeException with a message safe to show the user
      */
-    public static function storeImage(array $file, string $subdirectory = 'branding'): array
+    public static function storeImage(array $file, string $subdirectory = 'branding', ?int $maxBytes = null): array
     {
         self::assertUploadOk($file);
+
+        $limit = $maxBytes ?? self::maxImageBytes();
 
         $originalName = (string) ($file['name'] ?? 'image');
         $extension = strtolower((string) pathinfo($originalName, PATHINFO_EXTENSION));
@@ -94,8 +114,8 @@ final class Uploader
         if ($size <= 0) {
             throw new RuntimeException('That file appears to be empty.');
         }
-        if ($size > self::maxImageBytes()) {
-            throw new RuntimeException('That image is too large. The limit is ' . filesize_human(self::maxImageBytes()) . '.');
+        if ($size > $limit) {
+            throw new RuntimeException('That image is too large. The limit is ' . filesize_human($limit) . '.');
         }
 
         $tmpPath = (string) $file['tmp_name'];
@@ -133,12 +153,102 @@ final class Uploader
             $size = (int) filesize($target);
         }
 
+        // A scanner produces far more pixels than a web page can use. Shrinking
+        // here — rather than refusing the upload — is what keeps the public page
+        // light, and it leaves the original framing untouched.
+        if (self::shrinkToFit($target, $extension)) {
+            $size = (int) filesize($target);
+        }
+
         return [
             'original_name' => self::sanitizeName($originalName),
             'stored_name'   => $subdirectory . '/' . $storedName,
             'mime_type'     => $extension === 'svg' ? 'image/svg+xml' : $detected,
             'size_bytes'    => $size,
         ];
+    }
+
+    /**
+     * Scale a stored raster image down so its longest edge fits the cap.
+     *
+     * Best-effort by design: GD is not guaranteed on shared hosting, and an
+     * image that cannot be resized is still a perfectly good image — it is
+     * simply left at its original size rather than the upload being lost.
+     *
+     * @return bool True when the file on disk was replaced.
+     */
+    private static function shrinkToFit(string $path, string $extension): bool
+    {
+        if ($extension === 'svg' || $extension === 'ico' || $extension === 'gif') {
+            return false; // Vector, icon, or possibly animated — leave alone.
+        }
+        if (!function_exists('imagecreatetruecolor') || !function_exists('imagecopyresampled')) {
+            return false;
+        }
+
+        $info = @getimagesize($path);
+        if (!is_array($info)) {
+            return false;
+        }
+
+        [$width, $height] = [(int) $info[0], (int) $info[1]];
+        $longest = max($width, $height);
+        if ($longest <= self::CONTENT_IMAGE_MAX_EDGE || $longest === 0) {
+            return false;
+        }
+
+        $ratio = self::CONTENT_IMAGE_MAX_EDGE / $longest;
+        $newWidth = max(1, (int) round($width * $ratio));
+        $newHeight = max(1, (int) round($height * $ratio));
+
+        $source = match ($extension) {
+            'png'          => function_exists('imagecreatefrompng') ? @imagecreatefrompng($path) : false,
+            'webp'         => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+            'jpg', 'jpeg'  => function_exists('imagecreatefromjpeg') ? @imagecreatefromjpeg($path) : false,
+            default        => false,
+        };
+        if (!$source) {
+            return false;
+        }
+
+        $resized = @imagecreatetruecolor($newWidth, $newHeight);
+        if (!$resized) {
+            imagedestroy($source);
+            return false;
+        }
+
+        // PNG and WebP may carry transparency, which a plain copy would fill black.
+        if ($extension === 'png' || $extension === 'webp') {
+            imagealphablending($resized, false);
+            imagesavealpha($resized, true);
+        }
+
+        imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        // Write beside the original so a failure half-way cannot destroy the upload.
+        $temporary = $path . '.resized';
+        $written = match ($extension) {
+            'png'         => @imagepng($resized, $temporary, 6),
+            'webp'        => function_exists('imagewebp') && @imagewebp($resized, $temporary, 82),
+            'jpg', 'jpeg' => @imagejpeg($resized, $temporary, 82),
+            default       => false,
+        };
+
+        imagedestroy($source);
+        imagedestroy($resized);
+
+        if (!$written || !is_file($temporary) || filesize($temporary) === 0) {
+            @unlink($temporary);
+            return false;
+        }
+
+        if (!@rename($temporary, $path)) {
+            @unlink($temporary);
+            return false;
+        }
+        @chmod($path, 0644);
+
+        return true;
     }
 
     /**

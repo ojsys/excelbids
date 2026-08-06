@@ -587,7 +587,11 @@ final class CmsController extends Controller
 
         if ($wasUploaded) {
             try {
-                $stored = \App\Core\Uploader::storeImage($file, 'media');
+                $stored = \App\Core\Uploader::storeImage(
+                    $file,
+                    'media',
+                    \App\Core\Uploader::maxContentImageBytes()
+                );
             } catch (\RuntimeException $e) {
                 $errors[$column] = $e->getMessage();
                 return $current;

@@ -10,6 +10,7 @@
  */
 
 use App\Core\Flash;
+use App\Core\Uploader;
 use App\Models\Media;
 
 $errors = Flash::errors();
@@ -181,6 +182,7 @@ foreach ($items as $item) {
 
               <input class="input" type="file" id="f-<?= e($column) ?>" name="<?= e($column) ?>"
                      accept="image/png,image/jpeg,image/webp">
+              <span class="help">JPG, PNG or WebP, up to <?= e(filesize_human(Uploader::maxContentImageBytes())) ?>. Large scans are scaled down automatically.</span>
             <?php else: ?>
               <label for="f-<?= e($column) ?>">
                 <?= e((string) $definition['label']) ?><?= !empty($definition['required']) ? ' <span class="req">*</span>' : '' ?>
